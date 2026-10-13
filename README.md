@@ -2,8 +2,6 @@
 
 **IoMT remote cardiac monitoring.** A simulated wearable streams real ECG data over MQTT, an edge layer cleans it, the cloud stores and visualises it, and an ML model flags abnormal heartbeats in near real time.
 
-CS-335 Internet of Things, NUST SEECS, Fall 2026.
-
 ## Architecture
 
 ```
