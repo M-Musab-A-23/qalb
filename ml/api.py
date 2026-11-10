@@ -57,10 +57,14 @@ async def analyze(file: UploadFile = File(...),
             if header is None:
                 raise InputError("A WFDB upload needs both the .dat file and its .hea header.")
             with tempfile.TemporaryDirectory() as tmp:
-                stem = Path(tmp) / "rec"
-                (stem.with_suffix(".dat")).write_bytes(data)
-                (stem.with_suffix(".hea")).write_bytes(await _read_limited(header))
-                ecg = load_ecg(str(stem) + ".hea", fs=fs)
+                # keep the uploaded names: the header refers to its data file by name
+                dat_name = Path(name).name
+                hea_name = Path(header.filename or "record.hea").name
+                if Path(dat_name).suffix.lower() == ".hea":
+                    dat_name, hea_name = hea_name, dat_name
+                (Path(tmp) / dat_name).write_bytes(data)
+                (Path(tmp) / hea_name).write_bytes(await _read_limited(header))
+                ecg = load_ecg(str(Path(tmp) / hea_name), fs=fs)
         else:
             ecg = load_ecg(data, fs=fs, filename=name)
         result = analyse_recording(ecg.signal, ecg.fs)
