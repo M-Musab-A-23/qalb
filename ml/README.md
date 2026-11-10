@@ -303,3 +303,65 @@ at least 0.005 in nested cross-validation, so none are applied here.
 precision and recall on DS1 out-of-fold beats: raising S recall from 0.31 to
 0.45 costs precision falling from 0.27 to 0.10, and F has no usable operating
 point at all.
+
+### Step 4: tuned gradient boosting
+A bounded random search: 10 configurations drawn once with a fixed seed from
+learning rate, leaf count, minimum leaf size, L2 penalty, iteration count and
+the share of features per split (`experiments/step4_tuning.py`), each scored
+with the same 4-fold grouped CV and the step-2 oversampling.
+
+| | CV macro-F1 |
+|---|---|
+| default parameters (step 2) | 0.491 +/- 0.116 |
+| best of 10 (lr 0.05, 16 leaves, min leaf 200, L2 1, 250 iterations, 30 % of features) | 0.492 +/- 0.117 |
+| range over the 10 | 0.473 to 0.492 |
+
+Tuning did not help: the best configuration is 0.001 better, far inside the
+spread between folds. A tuned model had to beat the default by at least 0.005
+to be adopted, so the default parameters are kept (the `boosting_tuned_*` keys
+in `reports/experiments/step6_ensemble.json` therefore describe the default
+model).
+
+### Step 5: 1D CNN
+`qalb_ml/cnn.py`: three conv blocks (16, 32, 64 channels, kernel 7, batch norm,
+max pooling) over the 234-sample normalised beat (0.25 s before and 0.4 s after
+the R peak), global mean and max pooling, concatenated with a small branch for
+the 26 RR features, then a 64-unit hidden layer. About 30 thousand parameters.
+Loss is cross-entropy with square-root class weights, AdamW, light amplitude
+and noise augmentation, seed 42. Whole patients (about 20 %) are held out of
+each training fold for early stopping on the weighted loss, so stopping never
+sees the validation patients of the cross-validation. One fit takes about one
+minute on a CPU.
+
+| model | CV macro-F1 | S recall | V recall | F recall |
+|-------|-------------|----------|----------|----------|
+| boosting (step 2) | 0.491 +/- 0.116 | 0.305 | 0.868 | 0.002 |
+| CNN | 0.448 +/- 0.045 | 0.352 | 0.841 | 0.000 |
+
+On its own the CNN is not better than boosting on macro-F1. Its validation loss
+bottoms out after 1 to 8 epochs, a sign of how quickly it fits the training
+patients' individual beat shapes. It finds more S beats (35 %) but with low
+precision (0.11).
+
+### Step 6: ensemble
+The two models' out-of-fold probabilities are averaged with a weight chosen on
+a grid by DS1 cross-validated macro-F1 (`qalb_ml/ensemble.py`). A 50/50 blend
+scored best:
+
+| weight on boosting | 0.0 | 0.3 | 0.5 | 0.7 | 1.0 |
+|--------------------|-----|-----|-----|-----|-----|
+| CV macro-F1 | 0.448 | 0.468 | **0.501** | 0.497 | 0.491 |
+
+| model | CV macro-F1 | S recall (precision) | V recall (precision) | F recall |
+|-------|-------------|----------------------|----------------------|----------|
+| boosting | 0.491 +/- 0.116 | 0.305 (0.27) | 0.868 (0.55) | 0.002 |
+| CNN | 0.448 +/- 0.045 | 0.352 (0.11) | 0.841 (0.62) | 0.000 |
+| **ensemble** | 0.501 +/- 0.116 | 0.336 (0.32) | 0.899 (0.55) | 0.002 |
+
+Thresholds were tested again on the ensemble probabilities with the same
+nested-CV rule and again did not beat argmax, so the ensemble uses plain argmax.
+(For the CNN alone thresholds did pass the rule, with F recall 0.15 at 0.02
+precision and a lower S recall, but the CNN alone is not the selected stage.)
+The ensemble had the best cross-validated macro-F1 of all end-of-pipeline
+candidates and is the final configuration. That choice is written to
+`reports/experiments/selection.json` before any DS2 number exists.
