@@ -68,3 +68,17 @@ MODEL_FACTORIES = {
     "gradient_boosting": (gradient_boosting, True),
     "mlp": (neural_net, False),
 }
+
+
+def oversample(X: np.ndarray, y: np.ndarray, target: int = 6000, seed: int = SEED):
+    """Randomly repeat minority-class rows up to ``target`` per class (never shrinks)."""
+    rng = np.random.default_rng(seed)
+    idx = []
+    for c in np.unique(y):
+        rows = np.flatnonzero(y == c)
+        idx.append(rows)
+        if len(rows) < target:
+            idx.append(rng.choice(rows, target - len(rows), replace=True))
+    idx = np.concatenate(idx)
+    rng.shuffle(idx)
+    return X[idx], y[idx]
