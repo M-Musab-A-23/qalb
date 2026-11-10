@@ -11,6 +11,12 @@ from qalb_ml.cv import oof_proba, summarise
 N1, N_CTX, N_WAV = 174, 19, 41   # v1 columns, then RR context, wavelet bands, shape ratios
 
 
+def choose_feature_set(results: dict) -> str:
+    """v2 is used only if its CV macro-F1 beats v1 (the baseline set)."""
+    v1, v2 = results["v1 (baseline)"], results["v2 (all)"]
+    return "X2" if v2["macro_f1_mean"] > v1["macro_f1_mean"] else "X1"
+
+
 def main():
     d = feature_matrices("ds1")
     y, folds = d["y"], ds1_folds(d)
@@ -31,6 +37,8 @@ def main():
         oofs[name] = proba
         log(f"{name:<22} macro-F1 {out[name]['macro_f1_mean']:.3f} +/- {out[name]['macro_f1_std']:.3f}"
             f"  S {out[name]['s_recall']:.3f}  V {out[name]['v_recall']:.3f}  F {out[name]['f_recall']:.3f}")
+    out["chosen_feature_set"] = choose_feature_set(out)
+    log(f"chosen: {out['chosen_feature_set']}")
     save_result("step1_features", out)
     np.savez_compressed(CACHE_DIR / "oof_step1.npz", v1=oofs["v1 (baseline)"], v2=oofs["v2 (all)"])
 
