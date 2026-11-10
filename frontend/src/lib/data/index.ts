@@ -2,13 +2,17 @@
 // real API, replace the bodies of these functions and keep the signatures.
 import {
   baselineVitals,
+  computeAlertStats,
   createEcgGenerator,
   mockAlerts,
+  mockBrokerStatus,
   mockDevices,
   mockHeartRateTrend,
   mockPatients,
   nextVitals,
   type AlertItem,
+  type AlertStats,
+  type BrokerStatus,
   type Device,
   type EcgGenerator,
   type LiveVitals,
@@ -18,6 +22,8 @@ import {
 
 export type {
   AlertItem,
+  AlertStats,
+  BrokerStatus,
   Device,
   EcgGenerator,
   LiveVitals,
@@ -36,6 +42,14 @@ export function getDevices(): Device[] {
 
 export function getAlerts(): AlertItem[] {
   return mockAlerts;
+}
+
+export function getAlertStats(alerts: AlertItem[] = mockAlerts): AlertStats {
+  return computeAlertStats(alerts);
+}
+
+export function getBrokerStatus(): BrokerStatus {
+  return mockBrokerStatus;
 }
 
 export function getHeartRateTrend(): TrendPoint[] {
