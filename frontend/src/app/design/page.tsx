@@ -3,6 +3,7 @@ import { AlertsSection } from "./_sections/AlertsSection";
 import { BadgesSection } from "./_sections/BadgesSection";
 import { ButtonsSection } from "./_sections/ButtonsSection";
 import { DeviceChipsSection } from "./_sections/DeviceChipsSection";
+import { FormControlsSection } from "./_sections/FormControlsSection";
 import { GlassSection } from "./_sections/GlassSection";
 import { InputsSection } from "./_sections/InputsSection";
 import { NavItemsSection } from "./_sections/NavItemsSection";
@@ -23,6 +24,7 @@ export default function DesignPage() {
       <DeviceChipsSection />
       <NavItemsSection />
       <GlassSection />
+      <FormControlsSection />
     </main>
   );
 }
