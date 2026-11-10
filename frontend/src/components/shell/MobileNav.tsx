@@ -8,8 +8,9 @@ import { Logo } from "@/components/brand";
 import { CloseIcon } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { NavItem } from "@/components/ui/NavItem";
-import { navEntries } from "@/lib/nav";
-import { SidebarUser } from "./SidebarUser";
+import { useNavEntries } from "@/lib/hooks/useNavEntries";
+import { CurrentUser } from "./CurrentUser";
+import { SignOutButton } from "./SignOutButton";
 
 function MenuIcon() {
   return (
@@ -31,6 +32,7 @@ function MenuIcon() {
 /** Top bar and slide-in menu shown instead of the sidebar below the lg width. */
 export function MobileNav() {
   const pathname = usePathname();
+  const entries = useNavEntries();
   const reduceMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [lastPath, setLastPath] = useState(pathname);
@@ -99,7 +101,7 @@ export function MobileNav() {
           </button>
         </div>
         <nav aria-label="Main" className="mt-6 flex flex-col gap-2">
-          {navEntries.map(({ href, label, icon: Icon }) => (
+          {entries.map(({ href, label, icon: Icon }) => (
             <NavItem
               key={href}
               href={href}
@@ -109,8 +111,11 @@ export function MobileNav() {
             />
           ))}
         </nav>
-        <div className="mt-auto">
-          <SidebarUser name="Musab" role="Administrator" initials="MM" />
+        <div className="mt-auto flex flex-col gap-2">
+          <CurrentUser />
+          <div className="flex justify-end">
+            <SignOutButton />
+          </div>
         </div>
       </motion.aside>
     </div>
