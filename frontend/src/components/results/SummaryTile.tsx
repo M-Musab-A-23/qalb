@@ -35,7 +35,7 @@ export function SummaryTile({
       </p>
       {value !== undefined ? (
         <p className="flex items-end gap-2 whitespace-nowrap">
-          <span className="font-mono text-[40px] leading-[44px] font-bold tracking-[-0.025em] text-[var(--color-text-primary)] tabular-nums">
+          <span className="font-mono text-[34px] leading-[40px] font-bold tracking-[-0.025em] text-[var(--color-text-primary)] tabular-nums">
             {value}
           </span>
           {unit ? (
