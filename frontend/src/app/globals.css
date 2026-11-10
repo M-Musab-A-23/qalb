@@ -3,6 +3,7 @@
 @import "../styles/theme-dark.css";
 @import "../styles/glass.css";
 @import "../styles/scale.css";
+@import "../styles/surfaces.css";
 @import "tailwindcss";
 
 @theme inline {

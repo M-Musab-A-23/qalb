@@ -1,0 +1,14 @@
+/* Frosted glass surface used by cards, the sidebar and the top bar. */
+.glass {
+  background: var(--color-glass-fill);
+  border: 1px solid var(--color-glass-stroke);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.glass-strong {
+  background: var(--color-glass-fill-strong);
+  border: 1px solid var(--color-glass-stroke);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
