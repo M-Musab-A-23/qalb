@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { SearchPill } from "./SearchPill";
 
 export function TopBar({
@@ -28,7 +27,6 @@ export function TopBar({
       </div>
       {search ? <SearchPill /> : null}
       {actions}
-      <ThemeToggle />
     </header>
   );
 }
