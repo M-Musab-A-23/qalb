@@ -20,6 +20,14 @@ from .thresholds import apply_class_scales
 log = logging.getLogger("qalb.inference")
 
 _CNN_CACHE: dict = {}
+_WARNED: set = set()
+
+
+def _warn_once(key: str, message: str, *args) -> None:
+    """Log a fallback at WARNING the first time, then at DEBUG so servers do not flood."""
+    level = logging.DEBUG if key in _WARNED else logging.WARNING
+    _WARNED.add(key)
+    log.log(level, message, *args)
 
 
 def feature_builder(feature_set: str):
@@ -35,10 +43,10 @@ def load_cnn_lazily(path: Path):
     """Return the CNN bundle, or None (with a log line) when it cannot be used."""
     path = Path(path)
     if not torch_available():
-        log.warning("torch is not installed: using the gradient boosting model alone")
+        _warn_once("no-torch", "torch is not installed: using the gradient boosting model alone")
         return None
     if not path.exists():
-        log.warning("CNN file %s not found: using the gradient boosting model alone", path)
+        _warn_once(f"missing:{path}", "CNN file %s not found: using the gradient boosting model alone", path)
         return None
     key = str(path.resolve())
     if key not in _CNN_CACHE:
