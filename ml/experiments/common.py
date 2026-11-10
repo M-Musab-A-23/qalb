@@ -57,3 +57,22 @@ class Timer:
 
 def log(msg: str) -> None:
     print(msg, flush=True)
+
+
+def boosting_fit_predict(params=None, weight_fn=None):
+    """Callback for ``oof_proba``: histogram gradient boosting with sample weights.
+
+    ``weight_fn(y_train)`` returns per-sample weights (default: balanced).
+    """
+    from qalb_ml.cv import full_proba
+    from qalb_ml.models import balanced_sample_weight, gradient_boosting
+
+    def run(Xtr, ytr, Xva, tr_idx=None):
+        model = gradient_boosting()
+        if params:
+            model.set_params(**params)
+        w = (weight_fn or balanced_sample_weight)(ytr)
+        model.fit(Xtr, ytr, sample_weight=w)
+        return full_proba(model, Xva)
+
+    return run
