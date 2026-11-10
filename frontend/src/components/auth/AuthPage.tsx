@@ -10,11 +10,13 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
-      <AuthCard initialMode={mode} />
-      <p className="w-full max-w-[1120px] text-sm leading-5 text-[var(--color-text-subtle)] lg:w-[min(1120px,calc(100vw-48px))]">
-        QALB uses simulated data. It is not a medical device. Do not enter real
-        patient information.
-      </p>
+      <div className="auth-frame flex w-full max-w-[1120px] flex-col gap-4 lg:max-w-none">
+        <AuthCard initialMode={mode} />
+        <p className="text-sm leading-5 text-[var(--color-text-subtle)]">
+          QALB uses simulated data. It is not a medical device. Do not enter
+          real patient information.
+        </p>
+      </div>
     </div>
   );
 }

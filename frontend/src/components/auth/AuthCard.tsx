@@ -28,7 +28,7 @@ export function AuthCard({ initialMode }: { initialMode: AuthMode }) {
   }, []);
 
   return (
-    <div className="w-full max-w-[1120px] lg:w-auto lg:max-w-none">
+    <div className="w-full">
       {/* Below the lg width there is no room for the blade: show one form. */}
       <div className="glass-strong rounded-[24px] p-6 sm:p-10 lg:hidden">
         {mode === "signin" ? (
