@@ -1,0 +1,26 @@
+:root,
+[data-theme="light"] {
+  --color-bg-page: var(--neutral-25);
+  --color-bg-surface: var(--neutral-0);
+  --color-bg-raised: var(--neutral-50);
+  --color-bg-overlay: var(--neutral-0);
+  --color-border-subtle: var(--neutral-100);
+  --color-border-strong: var(--neutral-200);
+  --color-text-primary: var(--neutral-950);
+  --color-text-secondary: var(--neutral-600);
+  --color-text-subtle: var(--neutral-500);
+  --color-text-on-brand: var(--neutral-0);
+  --color-brand-fill: var(--pulse-600);
+  --color-brand-fill-hover: var(--pulse-700);
+  --color-brand-tint: var(--pulse-50);
+  --color-brand-text: var(--pulse-700);
+  --color-signal-line: var(--signal-600);
+  --color-signal-tint: var(--signal-100);
+  --color-status-ok-fg: var(--ok-700);
+  --color-status-ok-bg: var(--ok-100);
+  --color-status-warn-fg: var(--warn-700);
+  --color-status-warn-bg: var(--warn-100);
+  --color-status-crit-fg: var(--crit-700);
+  --color-status-crit-bg: var(--crit-100);
+  --color-focus-ring: var(--signal-600);
+}
