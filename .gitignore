@@ -13,6 +13,7 @@ data/processed/
 *.atr
 ml/models/*.pkl
 ml/models/*.joblib
+!ml/models/qalb_beat_classifier.joblib
 
 # Python
 __pycache__/
