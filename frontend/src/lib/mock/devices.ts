@@ -8,6 +8,8 @@ export const mockDevices: Device[] = [
     firmware: "1.4.2",
     signal: -48,
     lastMessageSeconds: 0.4,
+    mqttTopic: "qalb/p-0042/ecg",
+    sampleRate: 250,
   },
   {
     id: "ESP32-02",
@@ -16,6 +18,8 @@ export const mockDevices: Device[] = [
     firmware: "1.4.2",
     signal: -55,
     lastMessageSeconds: 0.6,
+    mqttTopic: "qalb/p-0017/ecg",
+    sampleRate: 250,
   },
   {
     id: "ESP32-03",
@@ -24,6 +28,8 @@ export const mockDevices: Device[] = [
     firmware: "1.4.1",
     signal: -61,
     lastMessageSeconds: 0.5,
+    mqttTopic: "qalb/p-0023/ecg",
+    sampleRate: 250,
   },
   {
     id: "ESP32-04",
@@ -32,6 +38,8 @@ export const mockDevices: Device[] = [
     firmware: "1.4.2",
     signal: -52,
     lastMessageSeconds: 0.3,
+    mqttTopic: "qalb/p-0031/ecg",
+    sampleRate: 250,
   },
   {
     id: "ESP32-05",
@@ -40,6 +48,8 @@ export const mockDevices: Device[] = [
     firmware: "1.4.0",
     signal: -67,
     lastMessageSeconds: 1.1,
+    mqttTopic: "qalb/p-0058/ecg",
+    sampleRate: 250,
   },
   {
     id: "ESP32-06",
@@ -47,6 +57,8 @@ export const mockDevices: Device[] = [
     connected: false,
     firmware: "1.3.9",
     signal: -88,
-    lastMessageSeconds: 312,
+    lastMessageSeconds: 120,
+    mqttTopic: "qalb/p-0064/ecg",
+    sampleRate: 250,
   },
 ];
