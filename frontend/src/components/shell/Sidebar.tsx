@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Logo } from "@/components/brand";
 import { NavItem } from "@/components/ui/NavItem";
 import { navEntries } from "@/lib/nav";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { SidebarUser } from "./SidebarUser";
 
 export function Sidebar() {
@@ -26,8 +27,11 @@ export function Sidebar() {
           />
         ))}
       </nav>
-      <div className="mt-auto">
-        <SidebarUser name="Musab" role="Administrator" initials="MM" />
+      <div className="mt-auto flex items-center gap-2">
+        <div className="min-w-0 flex-1">
+          <SidebarUser name="Musab" role="Administrator" initials="MM" />
+        </div>
+        <ThemeToggle />
       </div>
     </aside>
   );
