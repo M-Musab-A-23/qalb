@@ -106,7 +106,7 @@ def plot_tradeoff(curves: dict, chosen: dict, path: Path, title: str) -> None:
         ax.plot(c["recall"], c["precision"], color=BLUE, lw=2)
         pts = chosen[cls]
         ax.scatter(*pts["default"], color=GREY, s=60, zorder=3, label="scale 1 (argmax)")
-        ax.scatter(*pts["tuned"], color=ORANGE, s=60, zorder=3, label="tuned scale")
+        ax.scatter(*pts["tuned"], color=ORANGE, s=60, zorder=3, label="fitted scale")
         ax.set_xlabel(f"{cls} recall")
         ax.set_ylabel(f"{cls} precision")
         ax.set_xlim(0, 1.02)
