@@ -57,7 +57,7 @@ def detect_r_peaks(clean: np.ndarray, fs: float = FS) -> np.ndarray:
     env = np.convolve(energy, np.ones(win) / win, mode="same")
     if env.max() <= 0:
         return np.array([], dtype=int)
-    thr = 0.25 * np.percentile(env, 99)
+    thr = 0.12 * np.percentile(env, 99)
     cand, _ = find_peaks(env, height=thr, distance=int(0.2 * fs))
     half = int(0.06 * fs)
     peaks = []
@@ -95,9 +95,9 @@ def preprocess_window(signal: np.ndarray, fs: float = FS, peaks: np.ndarray | No
     Resamples to 360 Hz, cleans, finds R peaks (unless ``peaks`` are given in
     the *input* sampling grid), and segments beats.
 
-    Returns a dict with ``clean`` (360 Hz), ``peaks`` and ``beats`` (all
-    peaks, in 360 Hz samples), ``beats`` (N x BEAT_LEN) and ``kept``: the peaks
-    that were segmented.
+    Returns a dict with ``clean`` (the 360 Hz cleaned signal), ``peaks`` (all
+    peaks, in 360 Hz samples), ``beats`` (N x BEAT_LEN normalised beats) and
+    ``kept`` (the peaks that could be segmented, aligned with ``beats``).
     """
     sig = resample(signal, fs, FS)
     clean = clean_signal(sig, FS)
