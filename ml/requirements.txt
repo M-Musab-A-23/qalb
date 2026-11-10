@@ -9,3 +9,7 @@ paho-mqtt
 joblib
 PyWavelets
 pytest
+fastapi
+uvicorn
+python-multipart
+httpx
