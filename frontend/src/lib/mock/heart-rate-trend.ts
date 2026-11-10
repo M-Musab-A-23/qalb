@@ -9,10 +9,10 @@ export function createHeartRateTrend(points = 97): TrendPoint[] {
     const daily = 7 * Math.sin(progress * Math.PI * 3 + 0.6);
     const drift = 3 * Math.sin(progress * Math.PI * 7);
     // A brief rise around 19:00 to 20:00, matching the alert on the dashboard.
-    const spike = progress > 0.78 && progress < 0.83 ? 22 : 0;
+    const spike = 22 * Math.exp(-(((progress - 0.8) / 0.025) ** 2));
     result.push({
       hoursAgo,
-      bpm: Math.round(70 + daily + drift + spike),
+      bpm: 70 + daily + drift + spike,
     });
   }
   return result;
