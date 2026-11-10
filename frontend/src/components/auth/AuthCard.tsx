@@ -28,7 +28,7 @@ export function AuthCard({ initialMode }: { initialMode: AuthMode }) {
   }, []);
 
   return (
-    <div className="w-full max-w-[1120px]">
+    <div className="w-full max-w-[1120px] lg:w-auto lg:max-w-none">
       {/* Below the lg width there is no room for the blade: show one form. */}
       <div className="glass-strong rounded-[24px] p-6 sm:p-10 lg:hidden">
         {mode === "signin" ? (
@@ -38,7 +38,8 @@ export function AuthCard({ initialMode }: { initialMode: AuthMode }) {
         )}
       </div>
 
-      <div className="glass-strong relative hidden h-[640px] overflow-hidden rounded-[24px] lg:block">
+      <div className="auth-stage glass-strong relative hidden overflow-hidden rounded-[24px] lg:block">
+        <div className="auth-stage-inner relative">
         <Blade mode={mode} />
         {/* The track is two card widths wide and slides with the blade. */}
         <motion.div
@@ -73,6 +74,7 @@ export function AuthCard({ initialMode }: { initialMode: AuthMode }) {
             </div>
           </div>
         </motion.div>
+        </div>
       </div>
     </div>
   );
