@@ -1,0 +1,3 @@
+# Only needed to train or run the optional 1D CNN. CPU build:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch
