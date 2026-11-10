@@ -37,3 +37,43 @@ The demo buttons skip the password. While a demo account is active the
 sidebar shows a small "Demo" badge. Unauthenticated visitors are redirected to
 `/login`, and a patient who opens a clinician-only page is sent back to the
 live monitor.
+
+## Running it
+
+```
+npm install
+npm run dev          # http://localhost:3000
+```
+
+Copy `.env.example` to `.env.local` if you need to change the ML service URL.
+
+### Running the ML service next to the frontend
+
+The Analyze ECG page needs the analysis service from `../ml`. The browser
+never calls it directly: uploads go to the Next.js route `/api/analyze`, which
+forwards them to the service and returns its JSON.
+
+```
+# terminal 1, from the repository root
+cd ml
+pip install -r requirements.txt
+uvicorn api:app --port 8000
+
+# terminal 2
+cd frontend
+npm run dev
+```
+
+`ML_API_URL` sets where the route forwards to. It is read on the server and
+defaults to `http://localhost:8000`.
+
+```
+ML_API_URL=http://localhost:8000
+```
+
+If the service is not running, the page shows "Analysis is unavailable" and
+offers an offline demo result. That result is stored example output for one of
+the sample recordings. It is labelled as such, is not an analysis of your file
+and is not saved to history.
+
+Check the service with `curl http://localhost:8000/health`.
