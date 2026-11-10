@@ -26,3 +26,6 @@ export { SearchIcon } from "./SearchIcon";
 export { ShieldIcon } from "./ShieldIcon";
 export { UsersIcon } from "./UsersIcon";
 export { WifiIcon } from "./WifiIcon";
+export { AlertIcon } from "./AlertIcon";
+export { SunIcon } from "./SunIcon";
+export { MoonIcon } from "./MoonIcon";
