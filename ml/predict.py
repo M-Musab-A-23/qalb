@@ -94,3 +94,46 @@ def predict_window(signal, fs: float = FS, model_path: str | None = None) -> dic
         model_name=bundle["name"], model_version=bundle["version"], fs_in=fs,
         duration_s=len(signal) / fs, beats=_beat_records(kept, labels, conf, fs),
         rhythm=summary, alerts=alerts, quality=quality, warnings=warnings)
+
+
+def analyse_recording(signal, fs: float = FS, window_s: float = 60.0,
+                      model_path: str | None = None) -> dict:
+    """Analyse a recording of any length with the same result schema.
+
+    Recordings up to ``window_s`` go straight to ``predict_window``. Longer
+    ones are split into windows; beats and alerts are merged with sample
+    indices shifted back to the full recording, and the rhythm summary is
+    recomputed over all beats. ``quality`` is the mean window quality.
+    """
+    signal = np.asarray(signal, dtype=float)
+    size = int(window_s * fs)
+    if len(signal) <= size * 1.5:
+        return predict_window(signal, fs, model_path)
+    parts = []
+    for start in range(0, len(signal), size):
+        chunk = signal[start:start + size]
+        if len(chunk) >= 5 * fs:
+            parts.append((start, predict_window(chunk, fs, model_path)))
+        elif parts:  # fold a short tail into nothing: it is too short to score
+            pass
+    beats, alerts, warnings, scores = [], [], [], []
+    for start, r in parts:
+        for b in r["beats"]:
+            beats.append({**b, "sample": b["sample"] + start,
+                          "time_s": round((b["sample"] + start) / fs, 3)})
+        for a in r["alerts"]:
+            alerts.append({**a, "start_sample": a["start_sample"] + start,
+                           "end_sample": a["end_sample"] + start})
+        warnings += [f"t={start / fs:.0f}s: {w}" for w in r["warnings"]]
+        scores.append(r["quality"]["score"])
+    from qalb_ml.alerts import rhythm_summary
+    peaks = np.array([b["sample"] * FS / fs for b in beats])
+    summary = rhythm_summary(peaks, [b["class"] for b in beats], FS)
+    quality = dict(parts[0][1]["quality"]) if parts else {}
+    quality["score"] = round(float(np.mean(scores)), 3) if scores else 0.0
+    quality["min_window_score"] = round(float(np.min(scores)), 3) if scores else 0.0
+    first = parts[0][1]
+    return make_result(model_name=first["model"]["name"], model_version=first["model"]["version"],
+                       fs_in=fs, duration_s=len(signal) / fs, beats=beats, rhythm=summary,
+                       alerts=sorted(alerts, key=lambda a: a["start_sample"]),
+                       quality=quality, warnings=warnings)
