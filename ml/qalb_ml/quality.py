@@ -50,7 +50,8 @@ def signal_quality(signal: np.ndarray, fs: float = FS) -> dict:
     """Return the overall score in [0, 1] plus its components.
 
     Score = 0.45 * beat agreement + 0.3 * (1 - noise share scaled) +
-    0.25 * rate plausibility, multiplied by the non-flat fraction.
+    0.25 * rate plausibility, scaled down when beats disagree and by the
+    non-flat fraction.
     """
     signal = np.asarray(signal, dtype=float)
     flat = flatline_fraction(signal)
@@ -62,7 +63,7 @@ def signal_quality(signal: np.ndarray, fs: float = FS) -> dict:
     noise = noise_ratio(signal, fs)
     agree = beat_agreement(clean, peaks)
     rate = rate_plausibility(peaks, len(clean), fs)
-    score = (0.45 * agree + 0.30 * (1.0 - min(1.0, noise * 4.0)) + 0.25 * rate) * (1.0 - flat)
+    score = (0.45 * agree + 0.30 * (1.0 - min(1.0, noise * 4.0)) + 0.25 * rate) * (0.3 + 0.7 * agree) * (1.0 - flat)
     return {"score": round(float(np.clip(score, 0, 1)), 3), "flatline_fraction": round(flat, 3),
             "noise_ratio": round(noise, 4), "beat_agreement": round(agree, 3),
             "rate_plausibility": round(rate, 3)}
