@@ -43,3 +43,6 @@ Thumbs.db
 # ML artefacts
 ml/models/*.npz
 ml/.cache/
+ml/models/*.pt
+!ml/models/qalb_beat_cnn.pt
+ml/reports/dryrun_metrics.json

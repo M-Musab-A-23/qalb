@@ -45,8 +45,8 @@ not meaningful and it is excluded from macro averages (see evaluation).
 All models use the same 174 features. Imbalance is handled with class weights
 (logistic regression, random forest, gradient boosting via balanced sample
 weights) or minority oversampling (neural net). The neural comparison is a
-small scikit-learn MLP (128-64) on the feature vector, not a 1D CNN: no deep
-learning framework is part of this project's requirements.
+small scikit-learn MLP (128-64) on the feature vector, not a 1D CNN: the baseline
+uses no deep learning framework (the improved pipeline below adds a PyTorch CNN).
 
 Model choice used patient-grouped 4-fold cross-validation on DS1 only (mean
 macro-F1 over N, S, V, F):
