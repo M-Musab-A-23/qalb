@@ -216,3 +216,44 @@ Tests that need MIT-BIH data skip themselves when `data/raw` is missing.
 
 > QALB is a research and monitoring prototype. It is not a medical device and
 > must not be used for diagnosis or treatment decisions.
+
+## Improving the classifier
+
+The sections above describe the baseline (version 1.0: 174 features, balanced
+gradient boosting). The work below was done step by step on a branch. Every
+choice (features, weighting, thresholds, parameters, ensemble weight) was made
+with patient-grouped 4-fold cross-validation on DS1 only; DS2 was scored once
+at the end (`final_eval.py`). The experiment scripts are in `experiments/` and
+their numbers in `reports/experiments/`. Cross-validation numbers are the mean
+and standard deviation of macro-F1 over N, S, V and F on the four folds; the
+recalls are pooled over all out-of-fold beats.
+
+### Step 1: richer features
+Feature set v2 keeps the 174 baseline features and adds 81 (`qalb_ml/features_v2.py`):
+
+* RR context (19): the two intervals before and after the beat, their ratios,
+  differences, a local RMSSD / SDNN / pNN50, a compensatory-pause ratio and a
+  local heart rate.
+* Wavelet bands (41): level-5 db4 approximation and detail coefficients,
+  relative energy and peak of every band, wavelet entropy.
+* Shape ratios (21): Q, S, P and T amplitude relative to the R peak, QRS width
+  at half height, QRS duration from the slope, up/down slopes, positive and
+  negative area, number of local extrema in the QRS and the ST level.
+
+Every function takes plain arrays (R-peak positions or normalised beats), so
+`window_features_v2(clean, peaks)` works on any raw window after cleaning.
+
+Cross-validation on DS1, same boosting model for every row:
+
+| features | n | CV macro-F1 | S recall | V recall | F recall |
+|----------|---|-------------|----------|----------|----------|
+| v1 (baseline) | 174 | 0.451 +/- 0.110 | 0.321 | 0.913 | 0.002 |
+| v1 + RR context | 193 | 0.445 +/- 0.112 | 0.268 | 0.911 | 0.002 |
+| v1 + wavelet bands | 215 | 0.452 +/- 0.108 | 0.289 | 0.900 | 0.005 |
+| v1 + shape ratios | 195 | 0.461 +/- 0.118 | 0.344 | 0.900 | 0.002 |
+| **v2 (all)** | 255 | 0.458 +/- 0.113 | 0.261 | 0.868 | 0.002 |
+
+The gain is small (+0.007) and well inside the fold-to-fold spread, so the
+features alone do not fix the weak classes. v2 was kept because it scored
+higher than v1 in cross-validation and the later steps (CNN, ensemble) use the
+same RR context.
