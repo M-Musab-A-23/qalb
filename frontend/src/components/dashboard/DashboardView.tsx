@@ -26,6 +26,7 @@ export function DashboardView() {
   return (
     <>
       <TopBar
+        search
         title="Live monitoring"
         subtitle="Patient P-0042 · simulated MIT-BIH record 100"
         actions={

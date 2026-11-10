@@ -6,10 +6,13 @@ export function TopBar({
   title,
   subtitle,
   actions,
+  search = false,
 }: {
   title: string;
   subtitle?: string;
   actions?: ReactNode;
+  /** Shows the search pill next to the actions. */
+  search?: boolean;
 }) {
   return (
     <header className="flex w-full flex-wrap items-center gap-4">
@@ -23,7 +26,7 @@ export function TopBar({
           </p>
         ) : null}
       </div>
-      <SearchPill />
+      {search ? <SearchPill /> : null}
       {actions}
       <ThemeToggle />
     </header>
