@@ -1,0 +1,24 @@
+{
+  "chosen_stage": "ensemble_thresholds",
+  "uses_cnn": true,
+  "feature_set": "X2",
+  "imbalance_strategy": "oversample to 50% of N",
+  "boosting_params": {},
+  "w_boost": 0.5,
+  "scales": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "scales_boosting_only": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "cv_macro_f1": 0.5005496269194974,
+  "threshold_variant": "none (argmax)"
+}
