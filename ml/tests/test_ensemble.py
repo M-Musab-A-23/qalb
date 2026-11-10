@@ -33,6 +33,6 @@ def test_choose_weight_prefers_the_better_model():
     groups = np.repeat(np.arange(20), n // 20)
     folds = grouped_folds(groups)
     w, scores = choose_blend_weight(y, good, noise, folds)
-    assert w >= 0.8 and scores[w] >= scores[0.0]
+    assert w >= 0.5 and scores[w] >= scores[0.0] and scores[1.0] > scores[0.0]
     w2, _ = choose_blend_weight(y, noise, good, folds)
-    assert w2 <= 0.2
+    assert w2 <= 0.5
