@@ -69,3 +69,28 @@ def _beat_records(kept, labels, conf, fs):
     return [{"sample": int(round(p * fs / FS)), "time_s": round(float(p) / FS, 3),
              "class": str(c), "confidence": round(float(q), 3)}
             for p, c, q in zip(kept, labels, conf)]
+
+
+def predict_window(signal, fs: float = FS, model_path: str | None = None) -> dict:
+    """Analyse one raw ECG window and return the full result schema."""
+    signal = np.asarray(signal, dtype=float)
+    bundle = load_model(str(model_path) if model_path else None)
+    resampled = resample(signal, fs, FS)
+    quality = signal_quality(resampled, FS)
+    warnings = []
+    if quality["score"] < LOW_QUALITY:
+        warnings.append(f"Low signal quality ({quality['score']:.2f}); results are unreliable.")
+    clean = clean_signal(resampled, FS)
+    peaks = detect_r_peaks(clean, FS)
+    kept, labels, conf = _classify(clean, peaks, bundle)
+    if len(kept) == 0:
+        warnings.append("No complete heartbeats were found in this window.")
+    # rhythm is judged on every detected peak, labels only exist for kept ones
+    summary, alerts = analyse_rhythm(kept, labels, conf, FS)
+    for a in alerts:  # report alert positions in the caller's sample grid
+        a["start_sample"] = int(round(a["start_sample"] * fs / FS))
+        a["end_sample"] = int(round(a["end_sample"] * fs / FS))
+    return make_result(
+        model_name=bundle["name"], model_version=bundle["version"], fs_in=fs,
+        duration_s=len(signal) / fs, beats=_beat_records(kept, labels, conf, fs),
+        rhythm=summary, alerts=alerts, quality=quality, warnings=warnings)
