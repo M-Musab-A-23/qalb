@@ -24,6 +24,7 @@ export { PlusIcon } from "./PlusIcon";
 export { PulseIcon } from "./PulseIcon";
 export { SearchIcon } from "./SearchIcon";
 export { ShieldIcon } from "./ShieldIcon";
+export { UploadIcon } from "./UploadIcon";
 export { UsersIcon } from "./UsersIcon";
 export { WifiIcon } from "./WifiIcon";
 export { AlertIcon } from "./AlertIcon";
