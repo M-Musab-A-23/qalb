@@ -12,7 +12,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="glass sticky top-4 hidden h-[calc(100dvh-32px)] w-[260px] shrink-0 flex-col gap-2 rounded-[24px] lg:flex px-5 pt-7 pb-6">
+    <aside className="glass hidden h-full w-[260px] shrink-0 flex-col gap-2 rounded-[24px] lg:flex px-5 pt-7 pb-6">
       <Link href="/dashboard" aria-label="QALB home" className="w-fit">
         <Logo />
       </Link>
