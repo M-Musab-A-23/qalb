@@ -72,3 +72,41 @@ def test_cli_demo_runs(capsys, monkeypatch, tiny_model):
     out = capsys.readouterr().out
     assert "Streaming MIT-BIH record 100" in out and "beats=" in out
     predict.load_model.cache_clear()
+
+
+SCHEMA_KEYS = {"schema_version", "model", "sampling_rate_in", "sampling_rate_model",
+               "duration_s", "beats", "rhythm", "alerts", "quality", "warnings", "disclaimer"}
+
+
+@pytest.fixture
+def packaged(monkeypatch):
+    if not predict.MODEL_PATH.exists():
+        pytest.skip("packaged model not present")
+    predict.load_model.cache_clear()
+    yield
+    predict.load_model.cache_clear()
+
+
+def test_packaged_model_keeps_the_result_schema(short_record, packaged):
+    sig, fs, _, _ = short_record
+    res = predict_window(sig, fs)
+    assert set(res) == SCHEMA_KEYS
+    assert set(res["beats"][0]) == {"sample", "time_s", "class", "confidence"}
+    assert res["model"]["name"] in ("boosting_cnn_ensemble", "gradient_boosting")
+    json.dumps(res)
+
+
+def test_packaged_model_falls_back_without_torch(short_record, packaged, monkeypatch, caplog):
+    import logging
+    import qalb_ml.inference as inf
+
+    sig, fs, _, _ = short_record
+    bundle = predict.load_model()
+    if "ensemble" not in bundle:
+        pytest.skip("packaged model has no CNN part")
+    monkeypatch.setattr(inf, "torch_available", lambda: False)
+    with caplog.at_level(logging.WARNING, logger="qalb.inference"):
+        res = predict_window(sig, fs)
+    assert "gradient boosting model alone" in caplog.text
+    assert set(res) == SCHEMA_KEYS and res["model"]["name"] == "gradient_boosting"
+    assert len(res["beats"]) > 30
