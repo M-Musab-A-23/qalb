@@ -1,9 +1,9 @@
 # ML: arrhythmia detection
 
-1. `pip install -r requirements.txt`
+1. `pip install -r requirements.txt` (add `pip install -r requirements-torch.txt` to train or run the optional CNN)
 2. `python download_data.py` downloads MIT-BIH Arrhythmia and BIDMC CHF into `data/raw/` (git-ignored).
-3. Library code is in `qalb_ml/`, notebooks in `notebooks/`, figures and `metrics.json` in `reports/`, trained models in `models/` (model binaries are git-ignored).
-4. `python train.py` reproduces the whole pipeline; results are summarised below.
+3. Library code is in `qalb_ml/`, notebooks in `notebooks/`, figures and `metrics.json` in `reports/`, trained models in `models/` (the two final model files, 1.3 MB together, are committed).
+4. `python train.py` reproduces the baseline pipeline, `python train.py --improved` the whole improved one; results are summarised below.
 
 ## Pipeline notes
 
@@ -114,9 +114,12 @@ for irregular rhythm, how far the RR statistics are past their thresholds
 (0.5 to 1.0).
 
 ### 8. Packaging
-`models/qalb_beat_classifier.joblib` (0.4 MB, committed) holds the selected
-model. `predict.py` exposes `predict_beats`, `predict_window` and a streaming
-demo. Regenerate the model with `python train.py`.
+The baseline above is version 1.0. The packaged model is version 2.0 (see
+"Improving the classifier"): `models/qalb_beat_classifier.joblib` (1.15 MB,
+boosting model, feature set and decision scales) plus `models/qalb_beat_cnn.pt`
+(0.13 MB, CNN weights). `predict.py` exposes `predict_beats`, `predict_window`
+and a streaming demo; the result schema did not change. Regenerate the model
+files with `python train.py --improved` (about two hours on a CPU).
 
 ## Using the classifier
 
@@ -125,12 +128,23 @@ Everything below runs from the `ml/` folder with the virtual environment active.
 ### Train
 ```
 python download_data.py      # once, fills data/raw (git-ignored)
-python train.py              # features, grouped CV on DS1, DS2 report, saves the model
+python train.py              # baseline: features, grouped CV on DS1, DS2 report (reports/metrics.json)
 python train.py --quick      # smaller models, smoke test
+python train.py --improved   # every DS1 experiment, the one DS2 run, and the packaged model
 ```
-`train.py` writes `models/qalb_beat_classifier.joblib`, `reports/metrics.json`
-and the figures in `reports/`. Beat features are cached in `.cache/`. The
-model file is git-ignored; regenerate it with the command above.
+The baseline run writes `reports/metrics.json` and `models/qalb_beat_baseline.joblib`
+(git-ignored) and no longer touches the packaged model. `--improved` runs
+`experiments/step1_features.py` to `step6_ensemble.py` in order, then
+`final_eval.py` (scores DS2 once and writes `models/qalb_beat_classifier.joblib`
+and `models/qalb_beat_cnn.pt`) and `report_final.py`. Beat features are cached
+in `.cache/`. `python final_eval.py --dry-run` rehearses the final script on a
+held-out slice of DS1 and never loads DS2. `python benchmark.py` writes
+`reports/benchmark.md`.
+
+The CNN is optional at inference. If torch is not installed, or the CNN file is
+missing, `predict.py` logs `torch is not installed: using the gradient boosting
+model alone` once and uses the boosting model with the same output schema; the
+reported model name then is `gradient_boosting` instead of `boosting_cnn_ensemble`.
 
 ### Python API
 ```python
@@ -154,7 +168,7 @@ Every analysis path returns this JSON-serialisable object
 ```json
 {
   "schema_version": "1.0",
-  "model": {"name": "random_forest", "version": "1.0"},
+  "model": {"name": "boosting_cnn_ensemble", "version": "2.0"},
   "sampling_rate_in": 360.0,
   "sampling_rate_model": 360.0,
   "duration_s": 30.0,
