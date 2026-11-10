@@ -10,6 +10,7 @@ export { CpuIcon } from "./CpuIcon";
 export { DatabaseIcon } from "./DatabaseIcon";
 export { DownloadIcon } from "./DownloadIcon";
 export { EyeIcon } from "./EyeIcon";
+export { FileIcon } from "./FileIcon";
 export { FilterIcon } from "./FilterIcon";
 export { GearIcon } from "./GearIcon";
 export { GridIcon } from "./GridIcon";
