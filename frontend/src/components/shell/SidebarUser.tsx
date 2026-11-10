@@ -1,12 +1,17 @@
+import { DemoBadge } from "./DemoBadge";
+
 export function SidebarUser({
   name,
   role,
   initials: initialsOverride,
+  demo = false,
 }: {
   name: string;
   role: string;
   /** Overrides the initials derived from the name. */
   initials?: string;
+  /** Shows the Demo badge next to the role. */
+  demo?: boolean;
 }) {
   const initials =
     initialsOverride ??
@@ -26,8 +31,9 @@ export function SidebarUser({
         <span className="truncate text-sm leading-5 font-medium text-[var(--color-text-primary)]">
           {name}
         </span>
-        <span className="truncate text-xs leading-4 tracking-[0.2px] text-[var(--color-text-secondary)]">
-          {role}
+        <span className="flex items-center gap-2 text-xs leading-4 tracking-[0.2px] text-[var(--color-text-secondary)]">
+          <span className="truncate">{role}</span>
+          {demo ? <DemoBadge /> : null}
         </span>
       </span>
     </div>
