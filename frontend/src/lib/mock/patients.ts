@@ -1,0 +1,58 @@
+import type { Patient } from "./types";
+
+export const mockPatients: Patient[] = [
+  {
+    id: "P-0042",
+    record: "MIT-BIH record 100",
+    status: "critical",
+    heartRate: 156,
+    deviceId: "ESP32-01",
+    lastAlertTime: "14:32:08",
+    lastAlertLabel: "Arrhythmia detected",
+  },
+  {
+    id: "P-0017",
+    record: "MIT-BIH record 101",
+    status: "warning",
+    heartRate: 118,
+    deviceId: "ESP32-02",
+    lastAlertTime: "14:30:51",
+    lastAlertLabel: "Irregular rhythm",
+  },
+  {
+    id: "P-0023",
+    record: "MIT-BIH record 102",
+    status: "normal",
+    heartRate: 72,
+    deviceId: "ESP32-03",
+    lastAlertTime: "13:58:40",
+    lastAlertLabel: "Premature beats",
+  },
+  {
+    id: "P-0031",
+    record: "MIT-BIH record 103",
+    status: "normal",
+    heartRate: 68,
+    deviceId: "ESP32-04",
+    lastAlertTime: null,
+    lastAlertLabel: null,
+  },
+  {
+    id: "P-0058",
+    record: "MIT-BIH record 104",
+    status: "warning",
+    heartRate: 112,
+    deviceId: "ESP32-05",
+    lastAlertTime: "14:10:05",
+    lastAlertLabel: "Irregular rhythm",
+  },
+  {
+    id: "P-0064",
+    record: "MIT-BIH record 105",
+    status: "normal",
+    heartRate: 76,
+    deviceId: "ESP32-06",
+    lastAlertTime: "12:44:19",
+    lastAlertLabel: "Back to normal rhythm",
+  },
+];
