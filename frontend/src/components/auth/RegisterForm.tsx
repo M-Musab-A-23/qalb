@@ -48,7 +48,7 @@ export function RegisterForm() {
           type="email"
           autoComplete="email"
           placeholder="name@example.com"
-          helper="Use your university email"
+          helper="Use an email you can sign in with"
           error={errors.email}
         />
         <Input
