@@ -13,7 +13,7 @@ from pathlib import Path
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 
 from inputs import InputError, load_ecg
-from predict import MODEL_PATH, analyse_recording, load_model
+from predict import MODEL_PATH, active_name, analyse_recording, load_model
 from qalb_ml.config import DISCLAIMER, FS
 
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
@@ -29,7 +29,7 @@ def health() -> dict:
            "disclaimer": DISCLAIMER}
     if ready:
         bundle = load_model()
-        out["model"] = {"name": bundle["name"], "version": bundle["version"]}
+        out["model"] = {"name": active_name(bundle), "version": bundle["version"]}
     return out
 
 
