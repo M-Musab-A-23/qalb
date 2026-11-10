@@ -43,3 +43,14 @@ def save_metrics(metrics: dict, path: Path) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(metrics, indent=2))
+
+
+def format_report(name: str, m: dict) -> str:
+    """Plain-text table of per-class scores."""
+    lines = [f"{name}", f"{'class':<6}{'prec':>8}{'recall':>8}{'f1':>8}{'n':>8}"]
+    for c in CLASSES:
+        d = m["per_class"][c]
+        lines.append(f"{c:<6}{d['precision']:>8.3f}{d['recall']:>8.3f}{d['f1']:>8.3f}{d['support']:>8d}")
+    lines.append(f"accuracy {m['accuracy']:.4f}  macro-F1 (N,S,V,F) {m['macro_f1_scored']:.4f}  "
+                 f"V sens {m['v_sensitivity']:.3f}  S sens {m['s_sensitivity']:.3f}")
+    return "\n".join(lines)
