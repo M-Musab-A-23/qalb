@@ -97,3 +97,36 @@ Check the service with `curl http://localhost:8000/health`.
 
 The result schema is documented in `../ml/README.md` and parsed in
 `src/lib/analysis/parse.ts`.
+
+## How it is put together
+
+```
+src/lib/auth        AuthService interface, local stand-in, demo accounts, role rules
+src/lib/data        data access: role scoped getters and the per-user history
+src/lib/analysis    result schema, parsing, upload checks, API client, summaries
+src/app/api/analyze route handler that proxies uploads to the ML service
+src/components      auth, shell, analyze, results, history, dashboard, ui primitives
+```
+
+**Accounts are a local stand-in.** `src/lib/auth` defines one interface
+(`register`, `login`, `loginDemo`, `logout`, `currentUser`). The local
+implementation keeps accounts in the browser's `localStorage`, with passwords
+stored only as salted PBKDF2 hashes made with WebCrypto. This is for the demo
+and for trying the app on one machine: anyone with access to the browser can
+read the stored accounts, and data does not follow you between browsers. To
+use a real backend, implement `AuthService` and return it from `getAuth()` in
+`src/lib/auth/index.ts`; no page imports the local implementation.
+
+**History is stored per user in `localStorage`** behind async functions in
+`src/lib/data`. If a trace is too large to store, the result is kept without
+it and the history shows the beat timeline.
+
+## Checks
+
+```
+npm run lint
+npm run typecheck
+npm test            # auth layer, result parsing, upload checks, proxy, history
+npm run verify      # all three
+npm run build
+```
