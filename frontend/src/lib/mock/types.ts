@@ -21,6 +21,23 @@ export type Device = {
   signal: number;
   /** Seconds since the last message was received. */
   lastMessageSeconds: number;
+  mqttTopic: string;
+  /** Samples per second published by the device. */
+  sampleRate: number;
+};
+
+export type BrokerStatus = {
+  online: boolean;
+  connectedClients: number;
+  totalClients: number;
+  qos: number;
+  transport: string;
+};
+
+export type AlertStats = {
+  openCritical: number;
+  openWarnings: number;
+  acknowledgedToday: number;
 };
 
 export type AlertItem = {
@@ -29,6 +46,9 @@ export type AlertItem = {
   title: string;
   patientId: string;
   detail: string;
+  /** Second line shown in the alerts table. */
+  note: string;
+  deviceId: string;
   /** Local time of day, HH:MM:SS. */
   time: string;
   acknowledged: boolean;
