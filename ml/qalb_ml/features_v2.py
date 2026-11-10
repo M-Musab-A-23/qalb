@@ -35,7 +35,7 @@ def rr_context(peaks: np.ndarray, fs: float = FS) -> np.ndarray:
     if n == 0:
         return np.empty((0, len(RR_CTX_NAMES)))
     rr = np.diff(peaks) / fs if n > 1 else np.array([1.0])
-    padded = np.pad(rr, 4, mode="edge")
+    padded = np.pad(rr, (4, 5), mode="edge")
     win9 = sliding_window_view(padded, 9)[:n]          # rr[i-4 .. i+4]
     win5 = win9[:, 2:7]                                 # rr[i-2 .. i+2]
     prev2, prev1, next1, next2 = (padded[2:2 + n], padded[3:3 + n],
