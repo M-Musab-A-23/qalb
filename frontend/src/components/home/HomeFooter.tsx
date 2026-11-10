@@ -32,8 +32,7 @@ export function HomeFooter() {
       <div className="flex flex-1 flex-col gap-3">
         <Logo />
         <p className="max-w-[420px] text-sm leading-5 text-[var(--color-text-secondary)]">
-          QALB is a university IoT project that uses simulated patient data. It
-          is not a medical device.
+          QALB uses simulated patient data. It is not a medical device.
         </p>
       </div>
       <LinkColumn
@@ -48,8 +47,6 @@ export function HomeFooter() {
       <LinkColumn
         title="Project"
         links={[
-          { label: "CS-335 Internet of Things", href: "/" },
-          { label: "NUST SEECS", href: "/" },
           { label: "GitHub", href: "https://github.com/M-Musab-A-23/qalb" },
         ]}
       />
