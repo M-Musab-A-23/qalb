@@ -5,3 +5,11 @@
 3. Notebooks go in `notebooks/`, training code in `src/`, trained models in `models/` (model binaries are git-ignored).
 
 Record accuracy, precision, recall and F1 per class in `results.md`.
+
+## Pipeline notes
+
+### 1. Data loading
+Records are read with `wfdb` from `data/raw/mitdb`, lead MLII only. The four
+paced records (102, 104, 107, 217) are dropped, leaving 44 records. Beat
+annotation symbols are mapped to AAMI classes (N, S, V, F, Q); non-beat
+annotations (rhythm changes, noise marks) are ignored.
