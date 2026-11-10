@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import { createEcgSource, ECG_SAMPLE_RATE } from "@/lib/data";
 import { subscribeTheme } from "@/lib/theme";
 
-const WINDOW_SECONDS = 8;
+export const ECG_WINDOW_SECONDS = 4;
+const WINDOW_SECONDS = ECG_WINDOW_SECONDS;
 const SAMPLES = ECG_SAMPLE_RATE * WINDOW_SECONDS;
 
 type Colors = { signal: string; grid: string };
@@ -73,13 +74,13 @@ export function EcgCanvas({
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
       context.clearRect(0, 0, width, height);
 
-      // Grid: one vertical line per second, four horizontal bands.
+      // Grid: a vertical line every half second, five horizontal bands.
       context.lineWidth = 1;
       context.strokeStyle = colors.grid;
       context.globalAlpha = 0.5;
       context.beginPath();
-      for (let s = 1; s < WINDOW_SECONDS; s += 1) {
-        const x = Math.round((s / WINDOW_SECONDS) * width) + 0.5;
+      for (let s = 1; s < WINDOW_SECONDS * 2; s += 1) {
+        const x = Math.round((s / (WINDOW_SECONDS * 2)) * width) + 0.5;
         context.moveTo(x, 0);
         context.lineTo(x, height);
       }
@@ -101,7 +102,7 @@ export function EcgCanvas({
       const columns = Math.max(1, Math.floor(width));
       for (let x = 0; x < columns; x += 1) {
         const index = (head + Math.floor((x / columns) * SAMPLES)) % SAMPLES;
-        const y = height * (0.68 - 0.5 * buffer[index]);
+        const y = height * (0.64 - 0.42 * buffer[index]);
         if (x === 0) context.moveTo(x, y);
         else context.lineTo(x, y);
       }

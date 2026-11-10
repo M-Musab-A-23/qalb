@@ -1,9 +1,12 @@
 import { GlassCard } from "@/components/ui/GlassCard";
 import { cn } from "@/lib/cn";
 import { ECG_SAMPLE_RATE } from "@/lib/data";
-import { EcgCanvas } from "./EcgCanvas";
+import { ECG_WINDOW_SECONDS, EcgCanvas } from "./EcgCanvas";
 
-const axis = ["0 s", "2 s", "4 s", "6 s", "8 s"];
+const axis = Array.from(
+  { length: ECG_WINDOW_SECONDS + 1 },
+  (_, second) => `${second} s`,
+);
 
 export function EcgChartCard({
   paused,
