@@ -13,6 +13,7 @@ export { EyeIcon } from "./EyeIcon";
 export { FilterIcon } from "./FilterIcon";
 export { GearIcon } from "./GearIcon";
 export { GridIcon } from "./GridIcon";
+export { HistoryIcon } from "./HistoryIcon";
 export { HeartpulseIcon } from "./HeartpulseIcon";
 export { InfoIcon } from "./InfoIcon";
 export { LockIcon } from "./LockIcon";
