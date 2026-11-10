@@ -6,3 +6,4 @@ export { Input, type InputProps } from "./Input";
 export { NavItem, type NavItemProps } from "./NavItem";
 export { StatusBadge, type StatusBadgeProps } from "./StatusBadge";
 export { VitalsTile, type VitalsTileProps } from "./VitalsTile";
+export { Checkbox, type CheckboxProps } from "./Checkbox";
