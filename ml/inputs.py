@@ -95,3 +95,75 @@ def load_wfdb(stem: str | Path) -> tuple[np.ndarray, float, dict]:
     names = list(rec.sig_name)
     ch = names.index("MLII") if "MLII" in names else 0
     return rec.p_signal[:, ch].astype(float), float(rec.fs), {"layout": "wfdb", "channel": names[ch]}
+
+
+def validate_signal(signal: np.ndarray, fs: float, check_quality: bool = True) -> dict:
+    """Reject unusable recordings. ``signal`` is at ``fs`` Hz. Returns the quality dict."""
+    signal = np.asarray(signal, dtype=float)
+    if not (MIN_SAMPLING_RATE <= fs <= MAX_SAMPLING_RATE):
+        raise InputError(f"Sampling rate {fs:g} Hz is outside the supported range "
+                         f"{MIN_SAMPLING_RATE:g}-{MAX_SAMPLING_RATE:g} Hz.")
+    finite = np.isfinite(signal)
+    if finite.mean() < 0.9:
+        raise InputError("More than 10% of the samples are missing or not numbers.")
+    if len(signal) / fs < MIN_SECONDS:
+        raise InputError(f"The recording is too short ({len(signal) / fs:.1f} s); "
+                         f"at least {MIN_SECONDS:g} s is needed.")
+    if len(signal) / fs > MAX_SECONDS:
+        raise InputError(f"The recording is too long ({len(signal) / fs / 60:.0f} min); "
+                         f"the limit is {MAX_SECONDS / 60:.0f} min.")
+    signal = signal[finite] if not finite.all() else signal
+    if np.ptp(signal) < 1e-9 or flatline_fraction(signal) > 0.8:
+        raise InputError("The signal is a flat line; no ECG activity was found.")
+    quality = signal_quality(signal, fs)
+    if check_quality and quality["score"] < MIN_QUALITY:
+        raise InputError(f"The signal is too noisy to analyse (quality {quality['score']:.2f}, "
+                         f"minimum {MIN_QUALITY:.2f}).")
+    return quality
+
+
+def load_ecg(source, fs: float = FS, filename: str | None = None,
+             check_quality: bool = True) -> LoadedECG:
+    """Load an ECG from a path, bytes or text and return it at 360 Hz.
+
+    ``source`` may be a file path, a WFDB record stem, raw bytes or a string of
+    text. ``fs`` is the sampling rate of one-column files (default 360 Hz).
+    """
+    if fs is None or not np.isfinite(fs) or fs <= 0:
+        raise InputError("The sampling rate must be a positive number.")
+    name = filename or (str(source) if isinstance(source, (str, Path)) and "\n" not in str(source) else "")
+    suffix = Path(name).suffix.lower()
+    if suffix and suffix not in SUPPORTED:
+        raise InputError(f"Unsupported file type '{suffix}'. Use .csv, .tsv, .txt or a WFDB record.")
+
+    if suffix in (".hea", ".dat") or (isinstance(source, (str, Path)) and not suffix
+                                      and Path(str(source) + ".hea").exists()):
+        stem = Path(name).with_suffix("") if suffix else Path(str(source))
+        signal, file_fs, info = load_wfdb(stem)
+    else:
+        if isinstance(source, (bytes, bytearray)):
+            try:
+                text = bytes(source).decode("utf-8-sig")
+            except UnicodeDecodeError:
+                raise InputError("The file is not readable text; unsupported format.")
+        elif isinstance(source, Path) or (isinstance(source, str) and "\n" not in source
+                                          and Path(source).exists()):
+            try:
+                text = Path(source).read_text(encoding="utf-8-sig")
+            except (UnicodeDecodeError, OSError):
+                raise InputError("The file is not readable text; unsupported format.")
+        elif isinstance(source, str):
+            text = source
+        else:
+            raise InputError("Unsupported input type.")
+        signal, file_fs, info = parse_text(text, fs)
+
+    quality = validate_signal(signal, file_fs, check_quality)
+    signal = signal[np.isfinite(signal)]
+    out = resample(signal, file_fs, FS)
+    info.update({"duration_s": round(len(signal) / file_fs, 2), "quality": quality})
+    return LoadedECG(signal=out, fs=FS, original_fs=file_fs, source=name, info=info)
+
+
+def load_ecg_bytes(data: bytes, filename: str, fs: float = FS, **kw) -> LoadedECG:
+    return load_ecg(data, fs=fs, filename=filename, **kw)
