@@ -14,7 +14,7 @@ from qalb_ml.imbalance import focal_weights, oversample_indices, power_class_wei
 from qalb_ml.models import gradient_boosting
 
 
-def fit_predict_factory(strategy: str, groups: np.ndarray, **kw):
+def fit_predict_factory(strategy: str, groups: np.ndarray, params: dict | None = None, **kw):
     """Return a ``oof_proba`` callback for one imbalance strategy."""
 
     def run(Xtr, ytr, Xva, tr_idx):
@@ -31,6 +31,8 @@ def fit_predict_factory(strategy: str, groups: np.ndarray, **kw):
             w = focal_weights(ytr, first_stage_p_true(Xtr, ytr, groups[tr_idx]),
                               gamma=kw["gamma"], power=kw.get("power", 1.0))
         model = gradient_boosting()
+        if params:
+            model.set_params(**params)
         model.fit(Xfit, yfit, sample_weight=w)
         return full_proba(model, Xva)
 
