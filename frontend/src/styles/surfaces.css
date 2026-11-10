@@ -12,3 +12,33 @@
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
 }
+
+/* Crimson, cyan and indigo gradient mesh behind every page. */
+.mesh-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle 520px at 0% 0%,
+      var(--color-mesh-crimson),
+      transparent 72%
+    ),
+    radial-gradient(
+      circle 500px at 92% 2%,
+      var(--color-mesh-cyan),
+      transparent 72%
+    ),
+    radial-gradient(
+      circle 560px at 38% 100%,
+      var(--color-mesh-indigo),
+      transparent 72%
+    ),
+    radial-gradient(
+      circle 420px at 100% 100%,
+      var(--color-mesh-crimson),
+      transparent 72%
+    ),
+    var(--color-bg-page);
+}
