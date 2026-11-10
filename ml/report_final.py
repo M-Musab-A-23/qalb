@@ -92,8 +92,27 @@ def plot_stage_comparison(rows: list[dict], path) -> None:
     plt.close(fig)
 
 
+def write_per_class(rows: list[dict], final_name: str, path) -> None:
+    """Per-class precision / recall / F1 for the baseline and the final stage."""
+    lines = ["| model | class | precision | recall | F1 | beats |", "|---|---|---|---|---|---|"]
+    for r in rows:
+        if r["prefix"] == "baseline" or r["stage"] == final_name:
+            for c in ["N", "S", "V", "F", "Q"]:
+                d = r["ds2"]["per_class"][c]
+                lines.append(f"| {r['stage']} | {c} | {d['precision']:.3f} | {d['recall']:.3f} | "
+                             f"{d['f1']:.3f} | {d['support']} |")
+    path.write_text(chr(10).join(lines) + chr(10))
+
+
 def main():
+    from qalb_ml.plots import plot_class_f1, plot_sensitivity
+
     rows = build_rows()
+    final_name = load_result("final_stage")["final"]
+    pair = {"baseline": rows[0]["ds2"], "final": next(r["ds2"] for r in rows if r["stage"] == final_name)}
+    plot_class_f1(pair, REPORT_DIR / "f1_by_class_final.png")
+    plot_sensitivity(pair, REPORT_DIR / "sensitivity_final.png")
+    write_per_class(rows, final_name, REPORT_DIR / "final_per_class.md")
     write_table(rows, REPORT_DIR / "comparison.md")
     plot_stage_comparison(rows, REPORT_DIR / "comparison_stages.png")
     print((REPORT_DIR / "comparison.md").read_text())
