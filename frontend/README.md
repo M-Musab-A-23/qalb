@@ -17,3 +17,23 @@ trained model in [`../ml`](../ml).
 
 Both modes run in the same build. The sign-in and register pages have a
 "Try the demo" row that signs in a demo account with one click.
+
+## Roles and demo accounts
+
+| Role | Sees | Pages |
+|------|------|-------|
+| Clinician | All patients, all alerts, all devices, and a read-only section of demo-patient analyses in History | Overview, Live monitor, Analyze ECG, History, Patients, Alerts, Devices, Settings |
+| Patient | Only their own device and their own analyses | Overview, Live monitor, Analyze ECG, History, Devices, Settings |
+
+Self-registered accounts are always patients and start with no device and no
+history; every page shows an empty state until there is data.
+
+| Demo account | Email | Password | Linked to |
+|--------------|-------|----------|-----------|
+| Clinician | `clinician@demo.qalb` | `demo-clinician-2025` | all patients |
+| Patient | `patient@demo.qalb` | `demo-patient-2025` | patient `P-0042`, device `ESP32-01` |
+
+The demo buttons skip the password. While a demo account is active the
+sidebar shows a small "Demo" badge. Unauthenticated visitors are redirected to
+`/login`, and a patient who opens a clinician-only page is sent back to the
+live monitor.
