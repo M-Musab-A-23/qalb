@@ -45,6 +45,7 @@ export function HomeNav() {
           href="/login"
           className={cn(
             buttonBase,
+            "max-sm:hidden",
             "border border-[var(--color-border-strong)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-raised)]",
           )}
         >
