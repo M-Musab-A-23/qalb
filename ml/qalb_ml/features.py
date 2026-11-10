@@ -78,17 +78,19 @@ def morphology_stats(beats: np.ndarray, fs: float = FS) -> np.ndarray:
     return np.asarray(rows)
 
 
-def build_features(beats: np.ndarray, peaks: np.ndarray, fs: float = FS) -> np.ndarray:
+def build_features(beats: np.ndarray, peaks: np.ndarray, fs: float = FS,
+                   rr: np.ndarray | None = None) -> np.ndarray:
     """Full feature matrix: RR + heart rate + stats + wavelet + raw morphology.
 
     ``peaks`` must be the consecutive peak positions that ``beats`` was cut
-    from, so RR intervals are computed against the true neighbours.
+    from, so RR intervals are computed against the true neighbours. Pass
+    ``rr`` to reuse RR features computed on a longer peak sequence.
     """
     beats = np.asarray(beats)
     if len(beats) == 0:
         return np.empty((0, feature_dim()))
     return np.hstack([
-        rr_features(peaks, fs),
+        rr_features(peaks, fs) if rr is None else rr,
         morphology_stats(beats, fs),
         morphology_wavelet(beats),
         morphology_raw(beats),
@@ -100,3 +102,20 @@ def feature_dim() -> int:
     dummy = np.zeros((1, BEAT_LEN))
     return (len(RR_NAMES) + len(STAT_NAMES)
             + morphology_wavelet(dummy).shape[1] + morphology_raw(dummy).shape[1])
+
+
+def window_features(clean: np.ndarray, peaks: np.ndarray, fs: float = FS):
+    """Features for every segmentable beat of a cleaned signal.
+
+    RR intervals use all peaks, so beats next to the window edge still see
+    their true neighbours. Returns (X, kept_peaks).
+    """
+    from .preprocess import segment_beats
+
+    peaks = np.asarray(peaks, dtype=int)
+    beats, kept = segment_beats(clean, peaks)
+    if len(kept) == 0:
+        return np.empty((0, feature_dim())), kept
+    rr_all = rr_features(peaks, fs)
+    idx = np.searchsorted(peaks, kept)
+    return build_features(beats, kept, fs, rr=rr_all[idx]), kept
