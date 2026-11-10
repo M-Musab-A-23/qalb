@@ -13,7 +13,7 @@ from qalb_ml.config import CACHE_DIR
 from qalb_ml.cv import summarise
 from qalb_ml.ensemble import blend_probabilities, choose_blend_weight
 from qalb_ml.thresholds import fit_class_scales, nested_scale_cv
-from experiments.step3_thresholds import pick_variant
+from experiments.step3_thresholds import MARGIN, pick_variant
 
 
 def tuned_stage(y, proba, folds):
@@ -30,7 +30,7 @@ def main():
     s2, s3, s4 = (load_result(n) for n in ("step2_imbalance", "step3_thresholds", "step4_tuning"))
 
     default_oof = np.load(CACHE_DIR / "oof_step2.npz")[s2["chosen_strategy"].replace(" ", "_")]
-    tuned_better = s4["best"]["macro_f1_mean"] > s2[s2["chosen_strategy"]]["macro_f1_mean"]
+    tuned_better = s4["best"]["macro_f1_mean"] > s2[s2["chosen_strategy"]]["macro_f1_mean"] + MARGIN
     boost_oof = np.load(CACHE_DIR / "oof_step4.npy") if tuned_better else default_oof
     boost_params = s4["best_params"] if tuned_better else {}
     cnn_oof = np.load(CACHE_DIR / "oof_step5.npy")
