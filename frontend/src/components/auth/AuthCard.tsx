@@ -59,7 +59,7 @@ export function AuthCard({ initialMode }: { initialMode: AuthMode }) {
               className="absolute top-[247px] left-[57%]"
               eyebrow="Welcome back"
               title="Welcome back."
-              body="Your patients and their ECG streams are exactly where you left them."
+              body="Your analyses, alerts and monitored patients are exactly where you left them."
             />
           </div>
           <div className="relative h-full w-1/2" inert={mode !== "register"}>
@@ -67,7 +67,7 @@ export function AuthCard({ initialMode }: { initialMode: AuthMode }) {
               className="absolute top-[247px] left-[7%]"
               eyebrow="New to QALB"
               title="Start monitoring."
-              body="One account gives you live ECG, rhythm alerts and device status for simulated patients."
+              body="One account to upload ECG recordings, get them analysed and keep a history."
             />
             <div className="absolute top-5 left-[55.3%] w-[440px]">
               <RegisterPane onSwitch={() => switchTo("signin")} />

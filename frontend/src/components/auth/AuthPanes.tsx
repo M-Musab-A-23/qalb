@@ -1,6 +1,7 @@
 import { Logo } from "@/components/brand";
 import { AuthHeading } from "./AuthHeading";
 import { AuthSwitch } from "./AuthSwitch";
+import { DemoRow } from "./DemoRow";
 import { RegisterForm } from "./RegisterForm";
 import { SignInForm } from "./SignInForm";
 
@@ -15,9 +16,10 @@ export function SignInPane({ onSwitch }: { onSwitch: () => void }) {
       <Logo />
       <AuthHeading
         title="Sign in"
-        description="Monitor simulated patients, ECG streams and rhythm alerts."
+        description="Analyse ECG recordings and keep your history."
       />
       <SignInForm />
+      <DemoRow />
       <AuthSwitch
         prompt="New to QALB?"
         action="Create an account"
@@ -30,13 +32,14 @@ export function SignInPane({ onSwitch }: { onSwitch: () => void }) {
 
 export function RegisterPane({ onSwitch }: { onSwitch: () => void }) {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <Logo />
       <AuthHeading
         title="Create account"
-        description="One account for live ECG, alerts and device status."
+        description="A patient account to analyse ECG files and keep a history."
       />
       <RegisterForm />
+      <DemoRow />
       <AuthSwitch
         prompt="Already have an account?"
         action="Sign in"
