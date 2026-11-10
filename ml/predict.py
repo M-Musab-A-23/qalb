@@ -137,3 +137,48 @@ def analyse_recording(signal, fs: float = FS, window_s: float = 60.0,
                        fs_in=fs, duration_s=len(signal) / fs, beats=beats, rhythm=summary,
                        alerts=sorted(alerts, key=lambda a: a["start_sample"]),
                        quality=quality, warnings=warnings)
+
+
+def _stream_record(name: str, seconds: float, window_s: float, delay: float) -> None:
+    from qalb_ml.data import load_record
+    signal, fs, _, _ = load_record(name)
+    signal = signal[:int(seconds * fs)]
+    size = int(window_s * fs)
+    print(f"Streaming MIT-BIH record {name}: {len(signal) / fs:.0f} s in {window_s:g} s windows")
+    for start in range(0, len(signal) - size + 1, size):
+        res = predict_window(signal[start:start + size], fs)
+        counts = res["rhythm"]["class_counts"]
+        t0 = start / fs
+        print(f"[{t0:6.1f}s] beats={res['rhythm']['n_beats']:3d} "
+              f"hr={res['rhythm']['mean_hr_bpm']} rhythm={res['rhythm']['rhythm']} "
+              f"quality={res['quality']['score']:.2f} "
+              + " ".join(f"{k}:{v}" for k, v in counts.items() if v))
+        for b in res["beats"][:5]:
+            print(f"    beat @ {t0 + b['time_s']:7.2f}s  {b['class']}  conf {b['confidence']:.2f}")
+        for a in res["alerts"]:
+            print(f"    ALERT [{a['severity']}] {a['message']} (conf {a['confidence']:.2f})")
+        if delay:
+            time.sleep(delay)
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description="Stream a MIT-BIH record through the classifier")
+    ap.add_argument("--record", default="100", help="MIT-BIH record name (default 100)")
+    ap.add_argument("--seconds", type=float, default=60.0, help="how much of the record to use")
+    ap.add_argument("--window", type=float, default=10.0, help="window length in seconds")
+    ap.add_argument("--delay", type=float, default=0.0, help="pause between windows (s)")
+    ap.add_argument("--file", help="analyse a CSV/TXT file instead and print the JSON result")
+    ap.add_argument("--fs", type=float, default=FS, help="sampling rate for --file")
+    args = ap.parse_args(argv)
+    if args.file:
+        import json
+        from inputs import load_ecg
+        ecg = load_ecg(args.file, fs=args.fs)
+        print(json.dumps(analyse_recording(ecg.signal, ecg.fs), indent=2))
+        return 0
+    _stream_record(args.record, args.seconds, args.window, args.delay)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
