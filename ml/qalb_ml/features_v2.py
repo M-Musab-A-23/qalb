@@ -149,3 +149,51 @@ def morphology_shape(beats: np.ndarray, fs: float = FS) -> np.ndarray:
         up, down, up / (np.abs(down) + _EPS), pos, neg, pos / (neg + _EPS),
         extrema.sum(axis=1), st,
     ])
+
+
+def build_features_v2(beats: np.ndarray, peaks: np.ndarray, fs: float = FS,
+                      rr: np.ndarray | None = None,
+                      ctx: np.ndarray | None = None) -> np.ndarray:
+    """Feature set v2: everything in v1 plus RR context, wavelet bands and shape ratios.
+
+    ``rr`` and ``ctx`` can carry RR features computed on a longer peak
+    sequence (rows aligned with ``beats``), as ``window_features_v2`` does.
+    """
+    from .features import build_features
+
+    beats = np.asarray(beats)
+    if len(beats) == 0:
+        return np.empty((0, feature_dim_v2()))
+    return np.hstack([
+        build_features(beats, peaks, fs, rr=rr),
+        rr_context(peaks, fs) if ctx is None else ctx,
+        wavelet_features(beats),
+        morphology_shape(beats, fs),
+    ])
+
+
+def feature_dim_v2() -> int:
+    from .config import BEAT_LEN
+    from .features import feature_dim
+
+    dummy = np.zeros((1, BEAT_LEN))
+    return (feature_dim() + len(RR_CTX_NAMES) + wavelet_features(dummy).shape[1]
+            + len(SHAPE_NAMES))
+
+
+def window_features_v2(clean: np.ndarray, peaks: np.ndarray, fs: float = FS):
+    """v2 features for every segmentable beat of a cleaned signal.
+
+    Like ``features.window_features``: RR values use all peaks so beats next
+    to the window edge keep their true neighbours. Returns (X, kept_peaks).
+    """
+    from .features import rr_features
+    from .preprocess import segment_beats
+
+    peaks = np.asarray(peaks, dtype=int)
+    beats, kept = segment_beats(clean, peaks)
+    if len(kept) == 0:
+        return np.empty((0, feature_dim_v2())), kept
+    idx = np.searchsorted(peaks, kept)
+    return build_features_v2(beats, kept, fs, rr=rr_features(peaks, fs)[idx],
+                             ctx=rr_context(peaks, fs)[idx]), kept
