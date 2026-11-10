@@ -1,0 +1,25 @@
+[data-theme="dark"] {
+  --color-bg-page: var(--neutral-950);
+  --color-bg-surface: var(--neutral-900);
+  --color-bg-raised: var(--neutral-850);
+  --color-bg-overlay: var(--neutral-800);
+  --color-border-subtle: var(--neutral-800);
+  --color-border-strong: var(--neutral-700);
+  --color-text-primary: var(--neutral-50);
+  --color-text-secondary: var(--neutral-400);
+  --color-text-subtle: var(--neutral-500);
+  --color-text-on-brand: var(--neutral-0);
+  --color-brand-fill: var(--pulse-600);
+  --color-brand-fill-hover: var(--pulse-500);
+  --color-brand-tint: var(--pulse-900);
+  --color-brand-text: var(--pulse-300);
+  --color-signal-line: var(--signal-400);
+  --color-signal-tint: var(--signal-900);
+  --color-status-ok-fg: var(--ok-400);
+  --color-status-ok-bg: var(--ok-900);
+  --color-status-warn-fg: var(--warn-400);
+  --color-status-warn-bg: var(--warn-900);
+  --color-status-crit-fg: var(--crit-400);
+  --color-status-crit-bg: var(--crit-900);
+  --color-focus-ring: var(--signal-400);
+}
