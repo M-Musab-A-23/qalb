@@ -24,7 +24,7 @@ export function AlertBanner({
     <div
       role="alert"
       className={cn(
-        "flex items-center gap-4 rounded-[var(--radius-lg)] border p-[var(--space-4)]",
+        "flex flex-wrap items-center gap-4 rounded-[var(--radius-lg)] border p-[var(--space-4)] sm:flex-nowrap",
         c.bg,
         severity === "critical"
           ? "border-[var(--color-status-crit-fg)]"
