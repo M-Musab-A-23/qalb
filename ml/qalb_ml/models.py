@@ -25,3 +25,46 @@ def random_forest() -> object:
         n_estimators=300, min_samples_leaf=2, max_features="sqrt",
         class_weight="balanced_subsample", n_jobs=-1, random_state=SEED,
     )
+
+
+def gradient_boosting() -> object:
+    """Histogram gradient boosting; fit it with ``balanced_sample_weight``."""
+    return HistGradientBoostingClassifier(
+        max_iter=250, learning_rate=0.08, max_leaf_nodes=24,
+        l2_regularization=1.0, random_state=SEED,
+    )
+
+
+def neural_net() -> object:
+    """Small MLP on the feature vector, used as the neural comparison."""
+    return make_pipeline(
+        StandardScaler(),
+        MLPClassifier(hidden_layer_sizes=(128, 64), alpha=1e-3, early_stopping=True,
+                      max_iter=200, random_state=SEED),
+    )
+
+
+def balanced_sample_weight(y: np.ndarray) -> np.ndarray:
+    """Per-sample weights inversely proportional to class frequency."""
+    return compute_sample_weight("balanced", y)
+
+
+def fit_model(model, X: np.ndarray, y: np.ndarray, weighted: bool = False):
+    """Fit, optionally passing balanced sample weights (pipelines get them on the last step)."""
+    if weighted:
+        w = balanced_sample_weight(y)
+        if hasattr(model, "steps"):
+            model.fit(X, y, **{f"{model.steps[-1][0]}__sample_weight": w})
+        else:
+            model.fit(X, y, sample_weight=w)
+    else:
+        model.fit(X, y)
+    return model
+
+
+MODEL_FACTORIES = {
+    "logreg": (baseline_logreg, False),
+    "random_forest": (random_forest, False),
+    "gradient_boosting": (gradient_boosting, True),
+    "mlp": (neural_net, False),
+}
