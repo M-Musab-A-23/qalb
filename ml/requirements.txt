@@ -7,3 +7,5 @@ matplotlib
 jupyter
 paho-mqtt
 joblib
+PyWavelets
+pytest
