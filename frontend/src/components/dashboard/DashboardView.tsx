@@ -42,7 +42,7 @@ export function DashboardView() {
         <AlertBanner
           severity="critical"
           title={banner.title}
-          description={`Patient ${banner.patientId} · ${banner.detail.toLowerCase()} pattern, ${banner.time}`}
+          description={`Patient ${banner.patientId} · ${banner.detail.toLowerCase()}, ${banner.time}`}
           onAcknowledge={() => setDismissed((ids) => [...ids, banner.id])}
         />
       ) : null}
