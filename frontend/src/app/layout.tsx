@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Sora } from "next/font/google";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ThemeScript } from "@/components/theme/ThemeScript";
 import "./globals.css";
 
@@ -36,7 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <ThemeScript />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col"><AuthProvider>{children}</AuthProvider></body>
     </html>
   );
 }
