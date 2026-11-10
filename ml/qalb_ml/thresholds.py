@@ -48,19 +48,22 @@ def fit_class_scales(y: np.ndarray, proba: np.ndarray, grid=DEFAULT_GRID, rounds
     """
     y, proba = np.asarray(y), np.asarray(proba)
     floors = {CLASSES.index(c): v for c, v in (min_precision or {}).items()}
+    def score_of(sc_vec):
+        pred = apply_class_scales(proba, sc_vec)
+        sc = class_scores(y, pred)
+        if any(sc["precision"][k] < f for k, f in floors.items() if (pred == k).any()):
+            return -np.inf          # breaks a precision floor
+        return float(sc["f1"][SCORED_IDX].mean())
+
     scales = np.ones(len(CLASSES))
-    best = macro_f1(y, apply_class_scales(proba, scales))
+    best = score_of(scales)
     for _ in range(rounds):
         changed = False
         for c in TUNABLE:
             for s in grid:
                 trial = scales.copy()
                 trial[c] = s
-                pred = apply_class_scales(proba, trial)
-                sc = class_scores(y, pred)
-                if any(sc["precision"][k] < f for k, f in floors.items() if (pred == k).any()):
-                    continue
-                score = float(sc["f1"][SCORED_IDX].mean())
+                score = score_of(trial)
                 if score > best + 1e-6:
                     best, scales, changed = score, trial, True
         if not changed:
