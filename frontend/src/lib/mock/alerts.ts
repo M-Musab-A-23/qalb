@@ -1,0 +1,58 @@
+import type { AlertItem } from "./types";
+
+export const mockAlerts: AlertItem[] = [
+  {
+    id: "a-1007",
+    severity: "critical",
+    title: "Arrhythmia detected",
+    patientId: "P-0042",
+    detail: "Ventricular tachycardia pattern",
+    time: "14:32:08",
+    acknowledged: false,
+  },
+  {
+    id: "a-1006",
+    severity: "warning",
+    title: "Irregular rhythm",
+    patientId: "P-0017",
+    detail: "Premature beats",
+    time: "14:30:51",
+    acknowledged: false,
+  },
+  {
+    id: "a-1005",
+    severity: "warning",
+    title: "Irregular rhythm",
+    patientId: "P-0058",
+    detail: "Premature beats",
+    time: "14:10:05",
+    acknowledged: true,
+  },
+  {
+    id: "a-1004",
+    severity: "normal",
+    title: "Back to normal rhythm",
+    patientId: "P-0042",
+    detail: "Sinus rhythm restored",
+    time: "14:21:17",
+    acknowledged: true,
+  },
+  {
+    id: "a-1003",
+    severity: "warning",
+    title: "Premature beats",
+    patientId: "P-0023",
+    detail: "3 premature beats in the last minute",
+    time: "13:58:40",
+    acknowledged: true,
+  },
+  {
+    id: "a-1002",
+    severity: "normal",
+    title: "Back to normal rhythm",
+    patientId: "P-0064",
+    detail: "Sinus rhythm restored",
+    time: "12:44:19",
+    acknowledged: true,
+  },
+];
