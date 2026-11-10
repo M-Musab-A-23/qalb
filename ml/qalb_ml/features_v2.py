@@ -56,3 +56,26 @@ def rr_context(peaks: np.ndarray, fs: float = FS) -> np.ndarray:
         60.0 / (mean9 + _EPS), 60.0 / (prev1 + _EPS) - 60.0 / (next1 + _EPS),
     ]
     return np.column_stack(cols)
+
+
+WAVELET_LEVEL = 5
+
+
+def wavelet_features(beats: np.ndarray, wavelet: str = "db4",
+                     level: int = WAVELET_LEVEL) -> np.ndarray:
+    """Wavelet descriptors per beat.
+
+    Level-5 approximation and detail coefficients, the relative energy and the
+    peak magnitude of every band, and the wavelet entropy of the energy split.
+    """
+    import pywt
+
+    rows = []
+    for b in np.asarray(beats, dtype=float):
+        bands = pywt.wavedec(b, wavelet, level=level)       # cA5, cD5 ... cD1
+        energy = np.array([np.sum(c ** 2) for c in bands])
+        rel = energy / (energy.sum() + _EPS)
+        entropy = -np.sum(rel * np.log(rel + _EPS))
+        peak = np.array([np.max(np.abs(c)) for c in bands])
+        rows.append(np.concatenate([bands[0], bands[1], rel, peak, [entropy]]))
+    return np.asarray(rows)
