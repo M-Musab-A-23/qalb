@@ -38,3 +38,7 @@ platform/mosquitto/log/
 Thumbs.db
 .vscode/
 .idea/
+
+# ML artefacts
+ml/models/*.npz
+ml/.cache/
