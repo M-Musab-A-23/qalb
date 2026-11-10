@@ -76,7 +76,9 @@ def stage_predictions(train: dict, test: dict, sel: dict) -> tuple[dict, dict]:
     m4, p4 = (m2, p2) if not s6["tuned_boosting_used"] else hgb(train[fs], test[fs], strat, kw,
                                                                  s6["boosting_params"])
     scales_b = np.array(s6["stages"]["boosting_tuned_thresholds"]["scales"])
-    preds["4 tuned boosting + thresholds"] = apply_class_scales(p4, scales_b)
+    label4 = ("4 tuned boosting + thresholds" if s6["tuned_boosting_used"]
+              else "4 boosting search (default kept) + thresholds")
+    preds[label4] = apply_class_scales(p4, scales_b)
     cnn = train_cnn(train["beats"], np.hstack([train["rr"], train["ctx"]]), y, g)
     p_c = predict_proba_cnn(cnn, test["beats"], np.hstack([test["rr"], test["ctx"]]))
     preds["5 CNN alone"] = p_c.argmax(axis=1)
