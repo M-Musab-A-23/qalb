@@ -77,3 +77,23 @@ the sample recordings. It is labelled as such, is not an analysis of your file
 and is not saved to history.
 
 Check the service with `curl http://localhost:8000/health`.
+
+## Analyze ECG and History
+
+* **Input**: CSV or TXT (one column of samples, or time and value columns),
+  or a WFDB record (`.dat` plus `.hea`, chosen together). Files up to 25 MB.
+  The sampling rate field (default 360 Hz, 50 to 5000) applies to files
+  without a time column.
+* **Samples**: the "Use a sample" buttons load the two 30 s recordings in
+  `public/samples`, copied from `../ml/samples`.
+* **Results**: ECG trace with a coloured and lettered marker on every beat
+  (N, S, V, F, Q), heart rate, rhythm, signal quality, beat counts, alerts
+  with severity, and a beats table with time, class and confidence. WFDB
+  uploads are binary, so they show a beat timeline instead of a trace. The
+  "not a medical device and not a diagnosis" notice is always on screen.
+* **History**: every analysis is saved for the signed-in user. Open one to
+  see the full result again, delete it, or clear all. A clinician also sees
+  the demo patient's analyses in a separate read-only section.
+
+The result schema is documented in `../ml/README.md` and parsed in
+`src/lib/analysis/parse.ts`.
