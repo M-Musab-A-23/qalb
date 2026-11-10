@@ -18,3 +18,10 @@ def baseline_logreg() -> object:
         StandardScaler(),
         LogisticRegression(max_iter=2000, class_weight="balanced", C=0.5),
     )
+
+
+def random_forest() -> object:
+    return RandomForestClassifier(
+        n_estimators=300, min_samples_leaf=2, max_features="sqrt",
+        class_weight="balanced_subsample", n_jobs=-1, random_state=SEED,
+    )
