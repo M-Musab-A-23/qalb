@@ -5,11 +5,12 @@ import type { BrokerStatus } from "@/lib/data";
 function Stat({
   label,
   value,
-  className,
+  color = "text-[var(--color-text-primary)]",
 }: {
   label: string;
   value: string;
-  className?: string;
+  /** Text colour class for the value. */
+  color?: string;
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -17,10 +18,7 @@ function Stat({
         {label}
       </dt>
       <dd
-        className={cn(
-          "font-mono text-[32px] leading-10 font-bold text-[var(--color-text-primary)]",
-          className,
-        )}
+        className={cn("font-mono text-[32px] leading-10 font-bold", color)}
       >
         {value}
       </dd>
@@ -38,7 +36,7 @@ export function BrokerPanel({ broker }: { broker: BrokerStatus }) {
         <Stat
           label="Status"
           value={broker.online ? "Online" : "Offline"}
-          className={
+          color={
             broker.online
               ? "text-[var(--color-status-ok-fg)]"
               : "text-[var(--color-status-crit-fg)]"
@@ -52,7 +50,7 @@ export function BrokerPanel({ broker }: { broker: BrokerStatus }) {
         <Stat
           label="Transport"
           value={broker.transport}
-          className="text-[var(--color-signal-line)]"
+          color="text-[var(--color-signal-line)]"
         />
       </dl>
     </GlassCard>
