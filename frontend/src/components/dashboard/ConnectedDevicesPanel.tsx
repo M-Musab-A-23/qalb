@@ -1,10 +1,15 @@
 import { DeviceChip } from "@/components/ui/DeviceChip";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { cn } from "@/lib/cn";
-import { getDevices } from "@/lib/data";
+import type { Device } from "@/lib/data";
 
-export function ConnectedDevicesPanel({ className }: { className?: string }) {
-  const all = getDevices();
+export function ConnectedDevicesPanel({
+  devices: all,
+  className,
+}: {
+  devices: Device[];
+  className?: string;
+}) {
   const devices = [
     ...all.filter((device) => device.connected).slice(0, 2),
     ...all.filter((device) => !device.connected).slice(0, 1),
