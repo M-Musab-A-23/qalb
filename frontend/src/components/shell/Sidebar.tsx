@@ -27,7 +27,7 @@ export function Sidebar() {
         ))}
       </nav>
       <div className="mt-auto">
-        <SidebarUser name="Musab" role="Administrator" />
+        <SidebarUser name="Musab" role="Administrator" initials="MM" />
       </div>
     </aside>
   );

@@ -1,16 +1,21 @@
 export function SidebarUser({
   name,
   role,
+  initials: initialsOverride,
 }: {
   name: string;
   role: string;
+  /** Overrides the initials derived from the name. */
+  initials?: string;
 }) {
-  const initials = name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  const initials =
+    initialsOverride ??
+    name
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
 
   return (
     <div className="glass-strong flex items-center gap-3 rounded-[var(--radius-md)] p-3">
