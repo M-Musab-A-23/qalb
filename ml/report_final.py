@@ -32,7 +32,7 @@ def cv_summary(prefix: str) -> dict | None:
     if f == "step2_imbalance":
         return r[r["chosen_strategy"]]
     if f == "step3_thresholds":
-        return r[r["chosen_variant"]]
+        return r["variants"][r["chosen_variant"]]
     return r[key]
 
 
