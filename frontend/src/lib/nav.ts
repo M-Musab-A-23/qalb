@@ -16,8 +16,8 @@ export type NavEntry = {
 };
 
 export const navEntries: NavEntry[] = [
-  { href: "/dashboard", label: "Overview", icon: GridIcon },
-  { href: "/monitor", label: "Live monitor", icon: PulseIcon },
+  { href: "/", label: "Overview", icon: GridIcon },
+  { href: "/dashboard", label: "Live monitor", icon: PulseIcon },
   { href: "/patients", label: "Patients", icon: UsersIcon },
   { href: "/alerts", label: "Alerts", icon: BellIcon },
   { href: "/devices", label: "Devices", icon: CpuIcon },
