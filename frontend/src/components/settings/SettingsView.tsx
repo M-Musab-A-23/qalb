@@ -1,4 +1,8 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { DemoBadge } from "@/components/shell/DemoBadge";
 import { TopBar } from "@/components/shell/TopBar";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { GlassCard } from "@/components/ui/GlassCard";
@@ -27,10 +31,39 @@ function SettingRow({
   );
 }
 
+const roleLabels = { clinician: "Clinician", patient: "Patient" } as const;
+
 export function SettingsView() {
+  const { user } = useAuth();
+
   return (
     <>
-      <TopBar title="Settings" subtitle="Appearance and data source" />
+      <TopBar title="Settings" subtitle="Account, appearance and data source" />
+      {user ? (
+        <GlassCard className="flex max-w-[720px] flex-col gap-2">
+          <h2 className="text-xl leading-7 font-semibold text-[var(--color-text-primary)]">
+            Account
+          </h2>
+          <SettingRow label="Name" description={user.email}>
+            <span className="text-sm leading-5 font-medium text-[var(--color-text-primary)]">
+              {user.name}
+            </span>
+          </SettingRow>
+          <SettingRow
+            label="Role"
+            description={
+              user.role === "clinician"
+                ? "Sees every patient, alert and device"
+                : "Sees only their own device and analyses"
+            }
+          >
+            <span className="flex items-center gap-2 text-sm leading-5 font-medium text-[var(--color-text-primary)]">
+              {roleLabels[user.role]}
+              {user.demo ? <DemoBadge /> : null}
+            </span>
+          </SettingRow>
+        </GlassCard>
+      ) : null}
       <GlassCard className="flex max-w-[720px] flex-col gap-2">
         <h2 className="text-xl leading-7 font-semibold text-[var(--color-text-primary)]">
           Appearance
