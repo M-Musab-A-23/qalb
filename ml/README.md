@@ -41,6 +41,63 @@ appears in both. Beat counts (N, S, V, F, Q):
 The Q class is almost empty once paced records are removed, so its metrics are
 not meaningful and it is excluded from macro averages (see evaluation).
 
+### 5. Models
+All models use the same 174 features. Imbalance is handled with class weights
+(logistic regression, random forest, gradient boosting via balanced sample
+weights) or minority oversampling (neural net). The neural comparison is a
+small scikit-learn MLP (128-64) on the feature vector, not a 1D CNN: no deep
+learning framework is part of this project's requirements.
+
+Model choice used patient-grouped 4-fold cross-validation on DS1 only (mean
+macro-F1 over N, S, V, F):
+
+| model | CV macro-F1 |
+|-------|-------------|
+| logistic regression | 0.421 +/- 0.090 |
+| random forest | 0.441 +/- 0.072 |
+| gradient boosting | **0.451 +/- 0.110** |
+| MLP | 0.414 +/- 0.052 |
+
+Gradient boosting was selected and is the packaged model. DS2 played no part
+in the choice or in any setting.
+
+### 6. Evaluation on DS2 (held-out patients)
+Scored once. Per-class precision / recall / F1:
+
+| model | N | S | V | F |
+|-------|---|---|---|---|
+| logistic regression | .98 / .80 / .88 | .31 / .56 / .40 | .75 / .90 / .82 | .03 / .42 / .05 |
+| random forest | .95 / .99 / .97 | .80 / .02 / .05 | .89 / .91 / .90 | .00 / .00 / .00 |
+| **gradient boosting** | .96 / .86 / .91 | .15 / .19 / .16 | .77 / .97 / .86 | .00 / .03 / .01 |
+| MLP | .97 / .86 / .91 | .12 / .11 / .11 | .46 / .91 / .61 | .01 / .03 / .01 |
+
+| model | accuracy | macro-F1 (N,S,V,F) | V sensitivity | S sensitivity |
+|-------|----------|--------------------|---------------|---------------|
+| logistic regression | 0.794 | 0.536 | 0.898 | 0.563 |
+| random forest | 0.943 | 0.479 | 0.905 | 0.024 |
+| **gradient boosting** | 0.835 | 0.483 | 0.965 | 0.185 |
+| MLP | 0.826 | 0.410 | 0.909 | 0.106 |
+
+Honest reading:
+
+* Ventricular beats are found reliably (gradient boosting: 96.5 % sensitivity,
+  77 % precision). This is what the "ventricular pattern" alerts rely on.
+* Supraventricular beats are hard across patients. The selected model finds
+  18.5 % of them; the plain logistic regression actually does better on S
+  (56 % sensitivity) and has the best DS2 macro-F1, but it was not picked
+  because cross-validation on DS1 preferred gradient boosting and the test set
+  must not drive the choice.
+* Fusion beats are essentially not recognised (F1 near 0). They are rare,
+  look like a mix of N and V, and DS1 holds only 414 of them.
+* The Q class has 8 training and 7 test beats and is excluded from the macro
+  average (including it, gradient boosting macro-F1 over 5 classes is lower).
+* Accuracy is dominated by N and is not a useful headline number here.
+
+Figures are in `reports/`: `confusion_best.png`, `confusion_best_normalised.png`,
+`f1_by_class.png`, `sensitivity_v_s.png`, `class_distribution.png` and one
+confusion matrix per model. Full numbers are in `reports/metrics.json`. The
+notebook `notebooks/arrhythmia_results.ipynb` walks through all of it.
+
 ### 7. Rhythm-level alerts
 `qalb_ml.alerts` turns beat labels into alerts. Rules:
 
@@ -55,6 +112,11 @@ not meaningful and it is excluded from macro averages (see evaluation).
 Confidence is the mean beat confidence over the run (scaled by run length), or
 for irregular rhythm, how far the RR statistics are past their thresholds
 (0.5 to 1.0).
+
+### 8. Packaging
+`models/qalb_beat_classifier.joblib` (0.4 MB, committed) holds the selected
+model. `predict.py` exposes `predict_beats`, `predict_window` and a streaming
+demo. Regenerate the model with `python train.py`.
 
 ## Using the classifier
 
