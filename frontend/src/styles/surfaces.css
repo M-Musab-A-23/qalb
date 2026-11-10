@@ -67,4 +67,10 @@
     transform: scale(var(--stage-scale));
     transform-origin: top left;
   }
+
+  /* The main column scrolls on its own; keep the scrollbar slim and quiet. */
+  .app-main {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-strong) transparent;
+  }
 }
