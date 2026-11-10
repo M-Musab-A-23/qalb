@@ -23,7 +23,7 @@ import numpy as np
 
 from qalb_ml.alerts import analyse_rhythm
 from qalb_ml.config import CLASSES, FS, MODEL_DIR
-from qalb_ml.features import window_features
+from qalb_ml.inference import active_model_name, classify_window
 from qalb_ml.preprocess import clean_signal, detect_r_peaks, resample
 from qalb_ml.quality import signal_quality
 from qalb_ml.schema import make_result
@@ -41,15 +41,21 @@ def load_model(path: str | None = None) -> dict:
     return joblib.load(p)
 
 
-def _classify(clean: np.ndarray, peaks: np.ndarray, bundle: dict):
+def _model_dir(model_path) -> Path:
+    return Path(model_path).parent if model_path else MODEL_DIR
+
+
+def active_name(bundle: dict, model_path: str | None = None) -> str:
+    """Model name for results: the ensemble, or the boosting fallback if torch is missing."""
+    return active_model_name(bundle, _model_dir(model_path))
+
+
+def _classify(clean: np.ndarray, peaks: np.ndarray, bundle: dict, model_dir: Path = MODEL_DIR):
     """Return (kept peaks at 360 Hz, class labels, confidences)."""
-    X, kept = window_features(clean, peaks, FS)
+    kept, proba, pred = classify_window(clean, peaks, bundle, model_dir)
     if len(kept) == 0:
         return kept, np.array([], dtype="<U1"), np.array([])
-    proba = np.zeros((len(kept), len(CLASSES)))
-    proba[:, list(bundle["model"].classes_)] = bundle["model"].predict_proba(X)
-    idx = proba.argmax(axis=1)
-    return kept, np.array(CLASSES)[idx], proba[np.arange(len(kept)), idx]
+    return kept, np.array(CLASSES)[pred], proba[np.arange(len(kept)), pred]
 
 
 def predict_beats(signal, fs: float = FS, model_path: str | None = None) -> list[dict]:
@@ -61,7 +67,7 @@ def predict_beats(signal, fs: float = FS, model_path: str | None = None) -> list
     signal = np.asarray(signal, dtype=float)
     bundle = load_model(str(model_path) if model_path else None)
     clean = clean_signal(resample(signal, fs, FS), FS)
-    kept, labels, conf = _classify(clean, detect_r_peaks(clean, FS), bundle)
+    kept, labels, conf = _classify(clean, detect_r_peaks(clean, FS), bundle, _model_dir(model_path))
     return _beat_records(kept, labels, conf, fs)
 
 
@@ -82,7 +88,7 @@ def predict_window(signal, fs: float = FS, model_path: str | None = None) -> dic
         warnings.append(f"Low signal quality ({quality['score']:.2f}); results are unreliable.")
     clean = clean_signal(resampled, FS)
     peaks = detect_r_peaks(clean, FS)
-    kept, labels, conf = _classify(clean, peaks, bundle)
+    kept, labels, conf = _classify(clean, peaks, bundle, _model_dir(model_path))
     if len(kept) == 0:
         warnings.append("No complete heartbeats were found in this window.")
     # rhythm is judged on every detected peak, labels only exist for kept ones
@@ -91,7 +97,7 @@ def predict_window(signal, fs: float = FS, model_path: str | None = None) -> dic
         a["start_sample"] = int(round(a["start_sample"] * fs / FS))
         a["end_sample"] = int(round(a["end_sample"] * fs / FS))
     return make_result(
-        model_name=bundle["name"], model_version=bundle["version"], fs_in=fs,
+        model_name=active_name(bundle, model_path), model_version=bundle["version"], fs_in=fs,
         duration_s=len(signal) / fs, beats=_beat_records(kept, labels, conf, fs),
         rhythm=summary, alerts=alerts, quality=quality, warnings=warnings)
 
