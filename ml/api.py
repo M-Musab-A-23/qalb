@@ -31,3 +31,41 @@ def health() -> dict:
         bundle = load_model()
         out["model"] = {"name": bundle["name"], "version": bundle["version"]}
     return out
+
+
+async def _read_limited(upload: UploadFile) -> bytes:
+    data = await upload.read(MAX_UPLOAD_BYTES + 1)
+    if len(data) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="File too large (limit 25 MB).")
+    return data
+
+
+@app.post("/analyze")
+async def analyze(file: UploadFile = File(...),
+                  header: UploadFile | None = File(None),
+                  fs: float = Form(FS)) -> dict:
+    """Analyse an uploaded ECG and return the QALB result schema.
+
+    For WFDB, send the ``.dat`` as ``file`` and the ``.hea`` as ``header``.
+    """
+    if not MODEL_PATH.exists():
+        raise HTTPException(status_code=503, detail="Model not available on the server.")
+    name = file.filename or "upload"
+    data = await _read_limited(file)
+    try:
+        if Path(name).suffix.lower() in (".dat", ".hea"):
+            if header is None:
+                raise InputError("A WFDB upload needs both the .dat file and its .hea header.")
+            with tempfile.TemporaryDirectory() as tmp:
+                stem = Path(tmp) / "rec"
+                (stem.with_suffix(".dat")).write_bytes(data)
+                (stem.with_suffix(".hea")).write_bytes(await _read_limited(header))
+                ecg = load_ecg(str(stem) + ".hea", fs=fs)
+        else:
+            ecg = load_ecg(data, fs=fs, filename=name)
+        result = analyse_recording(ecg.signal, ecg.fs)
+    except InputError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    result["input"] = {"filename": name, "original_sampling_rate": ecg.original_fs,
+                       **{k: v for k, v in ecg.info.items() if k != "quality"}}
+    return result
