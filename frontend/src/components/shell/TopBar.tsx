@@ -13,7 +13,7 @@ export function TopBar({
 }) {
   return (
     <header className="flex w-full flex-wrap items-center gap-4">
-      <div className="flex min-w-[200px] flex-1 flex-col gap-1">
+      <div className="flex min-w-max flex-1 flex-col gap-1">
         <h1 className="text-[32px] leading-10 font-semibold tracking-[-0.03em] text-[var(--color-text-primary)]">
           {title}
         </h1>
