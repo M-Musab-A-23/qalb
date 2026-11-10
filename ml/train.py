@@ -2,6 +2,7 @@
 
     python train.py            # full run
     python train.py --quick    # smaller models, for a smoke test
+    python train.py --improved # rebuild the packaged model: all experiments, then the DS2 run
 
 Model selection uses patient-grouped cross-validation on DS1 only. DS2 is
 scored once at the end and never used to choose or tune anything.
@@ -24,6 +25,24 @@ from qalb_ml.models import MODEL_FACTORIES, fit_model, oversample
 from qalb_ml import plots
 
 MODEL_VERSION = "1.0"
+BASELINE_MODEL = "qalb_beat_baseline.joblib"   # the packaged model is written by final_eval.py
+
+IMPROVED_STEPS = ["experiments.step1_features", "experiments.step2_imbalance",
+                  "experiments.step3_thresholds", "experiments.step4_tuning",
+                  "experiments.step5_cnn", "experiments.step6_ensemble"]
+
+
+def run_improved() -> None:
+    """Re-run every DS1 experiment in order, then the one DS2 evaluation and packaging."""
+    import subprocess
+    import sys
+
+    for mod in IMPROVED_STEPS:
+        print(f"== {mod}", flush=True)
+        subprocess.run([sys.executable, "-m", mod], check=True)
+    print("== final_eval", flush=True)
+    subprocess.run([sys.executable, "final_eval.py"], check=True)
+    subprocess.run([sys.executable, "report_final.py"], check=True)
 
 
 def fit_one(name, X, y, quick=False):
@@ -55,7 +74,12 @@ def main():
     ap.add_argument("--quick", action="store_true")
     ap.add_argument("--models", nargs="*", default=list(MODEL_FACTORIES))
     ap.add_argument("--no-cache", action="store_true")
+    ap.add_argument("--improved", action="store_true",
+                    help="run the full improvement pipeline and write the packaged model")
     args = ap.parse_args()
+    if args.improved:
+        run_improved()
+        return
 
     t0 = time.time()
     X1, y1, g1 = load_ds1(cache=not args.no_cache)
@@ -95,7 +119,7 @@ def main():
 
     # 3. package the selected model
     MODEL_DIR.mkdir(exist_ok=True)
-    out = MODEL_DIR / "qalb_beat_classifier.joblib"
+    out = MODEL_DIR / BASELINE_MODEL
     joblib.dump({"model": fitted[best], "name": best, "classes": CLASSES,
                  "n_features": int(X1.shape[1]), "version": MODEL_VERSION}, out, compress=3)
     print(f"saved {out} ({out.stat().st_size / 1e6:.1f} MB)  total {time.time() - t0:.0f}s")
