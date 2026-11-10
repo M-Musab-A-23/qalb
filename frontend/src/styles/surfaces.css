@@ -50,14 +50,23 @@
    * fits without scrolling. tan(atan2(a, b)) turns the ratio of two lengths
    * into a plain number.
    */
-  .auth-stage {
+  .auth-frame {
     --stage-h: min(640px, calc(100dvh - 128px));
     --stage-w: min(1120px, calc(100vw - 48px));
     --stage-scale: min(
       tan(atan2(var(--stage-h), 640px)),
       tan(atan2(var(--stage-w), 1120px))
     );
-    width: calc(1120px * var(--stage-scale));
+  }
+
+  @media (min-width: 1024px) {
+    .auth-frame {
+      width: calc(1120px * var(--stage-scale));
+    }
+  }
+
+  .auth-stage {
+    width: 100%;
     height: calc(640px * var(--stage-scale));
   }
 
