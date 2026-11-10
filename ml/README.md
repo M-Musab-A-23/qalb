@@ -2,9 +2,8 @@
 
 1. `pip install -r requirements.txt`
 2. `python download_data.py` downloads MIT-BIH Arrhythmia and BIDMC CHF into `data/raw/` (git-ignored).
-3. Notebooks go in `notebooks/`, training code in `src/`, trained models in `models/` (model binaries are git-ignored).
-
-Record accuracy, precision, recall and F1 per class in `results.md`.
+3. Library code is in `qalb_ml/`, notebooks in `notebooks/`, figures and `metrics.json` in `reports/`, trained models in `models/` (model binaries are git-ignored).
+4. `python train.py` reproduces the whole pipeline; results are summarised below.
 
 ## Pipeline notes
 
