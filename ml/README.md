@@ -41,3 +41,18 @@ appears in both. Beat counts (N, S, V, F, Q):
 
 The Q class is almost empty once paced records are removed, so its metrics are
 not meaningful and it is excluded from macro averages (see evaluation).
+
+### 7. Rhythm-level alerts
+`qalb_ml.alerts` turns beat labels into alerts. Rules:
+
+| alert | rule | severity |
+|-------|------|----------|
+| `ventricular_run` | 3 or more consecutive V beats | high |
+| `ventricular_couplet` | exactly 2 consecutive V beats | medium |
+| `frequent_ventricular_beats` | 3 or more V beats and at least 10 % of the window | medium |
+| `irregular_rhythm` | RR coefficient of variation above 0.15 and more than 25 % of successive RR changes above 20 % (needs 8 beats) | medium |
+| `fast_rate` / `slow_rate` | mean heart rate above 100 or below 50 bpm | low |
+
+Confidence is the mean beat confidence over the run (scaled by run length), or
+for irregular rhythm, how far the RR statistics are past their thresholds
+(0.5 to 1.0).
