@@ -119,7 +119,7 @@ The baseline above is version 1.0. The packaged model is version 2.0 (see
 boosting model, feature set and decision scales) plus `models/qalb_beat_cnn.pt`
 (0.13 MB, CNN weights). `predict.py` exposes `predict_beats`, `predict_window`
 and a streaming demo; the result schema did not change. Regenerate the model
-files with `python train.py --improved` (about two hours on a CPU).
+files with `python train.py --improved` (a few hours on a CPU, mostly the boosting searches).
 
 ## Using the classifier
 
@@ -379,3 +379,85 @@ precision and a lower S recall, but the CNN alone is not the selected stage.)
 The ensemble had the best cross-validated macro-F1 of all end-of-pipeline
 candidates and is the final configuration. That choice is written to
 `reports/experiments/selection.json` before any DS2 number exists.
+
+### Final results on DS2 (scored once)
+`final_eval.py` fitted every stage on all of DS1 and scored the 22 DS2 patients
+once. The first row is the unchanged version 1.0 model (its numbers match
+`reports/metrics.json`). Stage 3 changes nothing because no thresholds were
+adopted, and stage 4 changes nothing because tuning was not adopted, so those
+rows repeat stage 2. Full table with precision: `reports/comparison.md`,
+all numbers: `reports/final_metrics.json`.
+
+| stage | CV macro-F1 (DS1) | DS2 macro-F1 | S recall | V recall | F recall | accuracy |
+|-------|-------------------|--------------|----------|----------|----------|----------|
+| baseline (v1 features, balanced boosting) | 0.451 | 0.483 | 0.185 | 0.965 | 0.034 | 0.835 |
+| 1 richer features (v2) | 0.458 | 0.490 | 0.289 | 0.965 | 0.057 | 0.820 |
+| 2 + oversampling to 50 % of N | 0.491 | 0.519 | 0.165 | 0.966 | 0.046 | 0.899 |
+| 3 + decision thresholds | 0.491 | 0.519 | 0.165 | 0.966 | 0.046 | 0.899 |
+| 4 + tuned boosting | 0.491 | 0.519 | 0.165 | 0.966 | 0.046 | 0.899 |
+| 5 CNN alone | 0.448 | 0.560 | 0.366 | 0.964 | 0.023 | 0.898 |
+| **6 ensemble (final)** | 0.501 | 0.555 | 0.256 | 0.968 | 0.039 | 0.924 |
+
+Per class for the final ensemble against the baseline (precision / recall / F1):
+
+| model | N | S | V | F |
+|-------|---|---|---|---|
+| baseline | .96 / .86 / .91 | .15 / .19 / .16 | .77 / .97 / .86 | .00 / .03 / .01 |
+| **final ensemble** | .96 / .96 / .96 | .41 / .26 / .32 | .89 / .97 / .93 | .01 / .04 / .02 |
+
+Figures: `reports/comparison_stages.png` (macro-F1 and rare-class recall per
+stage), `reports/f1_by_class_final.png`, `reports/sensitivity_final.png`,
+`reports/confusion_final.png`, `reports/confusion_final_normalised.png`,
+`reports/threshold_tradeoff.png`.
+
+Honest reading:
+
+* The final model is better than the baseline on macro-F1 (0.555 against
+  0.483), on S precision (0.41 against 0.15, because there are far fewer false
+  alarms from normal beats) and on V precision (0.89 against 0.77), with V
+  sensitivity unchanged at about 0.97. Normal beats are called normal 95.6 % of
+  the time (baseline 86 %).
+* S sensitivity went up only modestly, from 0.185 to 0.256. About three in four
+  supraventricular beats are still missed. The best S recall of any stage on
+  DS2 (0.366) belongs to the CNN alone, at 0.42 precision.
+* Fusion beats are still not recognised: F recall 0.04 at 1 % precision. The
+  extra features, weighting and CNN do not change that; the confusion matrix
+  shows they are mostly called N.
+* Things that did not help: tuned thresholds and tuned boosting parameters
+  (no gain on held-out DS1 patients), focal weighting (worse), RR-context
+  features on their own (slightly worse). The richer features were a small
+  gain on DS1 (+0.007) that sits inside the fold-to-fold spread.
+* The choice of final stage was made on DS1 cross-validation (ensemble 0.501,
+  boosting 0.491, CNN 0.448). On DS2 the CNN alone scored 0.560 against 0.555
+  for the ensemble; that difference is small and was not used to change the
+  choice. Including the almost-empty Q class, macro-F1 over five classes is
+  0.444 (baseline 0.387).
+* Cross-validation macro-F1 on DS1 has a standard deviation of 0.11 across four
+  folds, so differences below about 0.02 between stages should not be read as
+  real. The DS2 results come from one set of 22 patients.
+
+### Method summary
+Beats are cut around annotated R peaks (training) or detected ones (inference),
+band-pass filtered and z-scored. Boosting sees 255 hand-built features
+(RR context, wavelets, shape ratios, 12 shape statistics, raw samples) with the
+rare classes oversampled to half the N count inside each training fold. The CNN
+sees the 234-sample waveform plus 26 RR features. The final probabilities are
+the average of the two with equal weight; the class with the highest averaged
+probability is reported and its probability is the confidence. Each of the
+choices above came from patient-grouped cross-validation on DS1.
+
+### Speed
+Measured by `benchmark.py` on the development machine (Intel Core, Windows,
+CPU only, one process); the full tables are in `reports/benchmark.md`.
+
+| measurement | final ensemble | boosting only (no torch) |
+|-------------|----------------|--------------------------|
+| per beat | 3.2 ms | 2.8 ms |
+| per 10 s window (median) | 35 ms | 31 ms |
+| per uploaded 30 s file (median) | 71 ms | 72 ms |
+| first analysis after start | 2.4 s (loads torch) | 0.17 s |
+| resident memory, fresh process | 339 MB | 172 MB |
+| model files | 1.28 MB (1.15 + 0.13) | 1.15 MB |
+
+Importing torch dominates start-up time and memory; once loaded, the CNN adds
+only a few milliseconds per window.
