@@ -1,0 +1,17 @@
+:root,
+[data-theme="light"] {
+  --color-glass-fill: rgba(255, 255, 255, 0.62);
+  --color-glass-fill-strong: rgba(255, 255, 255, 0.8);
+  --color-glass-stroke: rgba(255, 255, 255, 0.95);
+  --color-mesh-crimson: #ffb2bf;
+  --color-mesh-cyan: #a6e8f5;
+  --color-mesh-indigo: #c9d4ff;
+}
+[data-theme="dark"] {
+  --color-glass-fill: rgba(255, 255, 255, 0.06);
+  --color-glass-fill-strong: rgba(255, 255, 255, 0.1);
+  --color-glass-stroke: rgba(255, 255, 255, 0.14);
+  --color-mesh-crimson: #8c1430;
+  --color-mesh-cyan: #0d738f;
+  --color-mesh-indigo: #1c296b;
+}
