@@ -257,3 +257,49 @@ The gain is small (+0.007) and well inside the fold-to-fold spread, so the
 features alone do not fix the weak classes. v2 was kept because it scored
 higher than v1 in cross-validation and the later steps (CNN, ensemble) use the
 same RR context.
+
+### Step 2: class imbalance
+Same v2 features and boosting model, only the handling of imbalance changes.
+Oversampling repeats rare-class rows (S, V, F, Q) at random up to a share of
+the N count, and it runs inside each training fold after the split; the
+validation fold is never touched. Focal-style weighting multiplies the balanced
+class weights by `(1 - p)^gamma`, where `p` is the probability a first-stage
+model (cross-fitted by patient inside the training fold) gave the true class.
+
+| strategy | CV macro-F1 | S recall | V recall | F recall |
+|----------|-------------|----------|----------|----------|
+| no weighting | 0.462 +/- 0.095 | 0.153 | 0.853 | 0.000 |
+| balanced weights (baseline) | 0.458 +/- 0.113 | 0.261 | 0.868 | 0.002 |
+| square-root weights | 0.455 +/- 0.101 | 0.181 | 0.833 | 0.000 |
+| oversample to 25 % of N | 0.480 +/- 0.101 | 0.257 | 0.853 | 0.000 |
+| **oversample to 50 % of N** | 0.491 +/- 0.116 | 0.305 | 0.868 | 0.002 |
+| focal, gamma 1 | 0.444 +/- 0.093 | 0.269 | 0.811 | 0.002 |
+| focal, gamma 2 | 0.433 +/- 0.107 | 0.303 | 0.798 | 0.007 |
+
+Oversampling to half of the N count was best (+0.033 over balanced weights).
+Focal weighting made things worse: the first-stage model is almost certain
+about the training rows it can memorise, so the weights end up favouring noisy
+and mislabelled beats. F recall stays near zero for every strategy: with 414
+training beats from few patients, nothing here makes it learnable.
+
+### Step 3: decision thresholds
+`qalb_ml/thresholds.py` multiplies each class probability by a scale before
+the argmax and fits the scales for S, V and F by coordinate ascent on
+macro-F1. To estimate how well this works on unseen patients the scales are
+fitted on three folds' out-of-fold probabilities and applied to the fourth
+(nested). A second variant adds a precision floor of 0.2 for S and F.
+
+| decision rule | CV macro-F1 | S recall (precision) | F recall (precision) |
+|---------------|-------------|----------------------|----------------------|
+| **argmax (scale 1)** | 0.491 +/- 0.116 | 0.305 (0.27) | 0.002 (0.01) |
+| tuned scales | 0.480 +/- 0.110 | 0.242 (0.27) | 0.007 (0.00) |
+| tuned, precision floor 0.2 | 0.491 +/- 0.116 | 0.305 (0.27) | 0.002 (0.01) |
+
+Tuned thresholds did not help on held-out patients: the scales that look best
+on all of DS1 do not transfer to the next fold, and with the precision floor no
+scale beats scale 1. The rule was to use thresholds only if they beat argmax by
+at least 0.005 in nested cross-validation, so none are applied here.
+`reports/threshold_tradeoff.png` shows what moving the S or F scale does to
+precision and recall on DS1 out-of-fold beats: raising S recall from 0.31 to
+0.45 costs precision falling from 0.27 to 0.10, and F has no usable operating
+point at all.
