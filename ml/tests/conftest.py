@@ -53,3 +53,10 @@ def tiny_model(tmp_path_factory):
     joblib.dump({"model": clf, "name": "tiny_forest", "classes": CLASSES,
                  "n_features": int(Xs[0].shape[1]), "version": "test"}, path)
     return path
+
+
+@pytest.fixture(autouse=True)
+def fresh_fallback_log():
+    """The fallback warning is logged once per process; let each test see it again."""
+    import qalb_ml.inference as inf
+    inf._WARNED.clear()
