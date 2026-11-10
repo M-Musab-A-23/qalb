@@ -1,10 +1,8 @@
-import { TopBar } from "@/components/shell/TopBar";
+import type { Metadata } from "next";
+import { DashboardView } from "@/components/dashboard/DashboardView";
+
+export const metadata: Metadata = { title: "Live monitoring · QALB" };
 
 export default function DashboardPage() {
-  return (
-    <TopBar
-      title="Live monitoring"
-      subtitle="Patient P-0042 · simulated MIT-BIH record 100"
-    />
-  );
+  return <DashboardView />;
 }
