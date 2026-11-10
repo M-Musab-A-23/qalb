@@ -1,3 +1,8 @@
+@import "../styles/primitives.css";
+@import "../styles/theme-light.css";
+@import "../styles/theme-dark.css";
+@import "../styles/glass.css";
+@import "../styles/scale.css";
 @import "tailwindcss";
 
 :root {
@@ -23,4 +28,14 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@theme inline {
+  --color-page: var(--color-bg-page);
+  --color-surface: var(--color-bg-surface);
+  --color-raised: var(--color-bg-raised);
+  --color-primary: var(--color-text-primary);
+  --color-secondary: var(--color-text-secondary);
+  --color-brand: var(--color-brand-fill);
+  --color-signal: var(--color-signal-line);
 }
