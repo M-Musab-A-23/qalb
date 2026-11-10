@@ -92,3 +92,30 @@ def plot_class_distribution(counts_ds1, counts_ds2, path: Path) -> None:
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150)
     plt.close(fig)
+
+
+def plot_tradeoff(curves: dict, chosen: dict, path: Path, title: str) -> None:
+    """Precision against recall as one class's scale is swept.
+
+    ``curves`` maps a class name to ``thresholds.tradeoff_curve`` output;
+    ``chosen`` maps the class name to ``{"default": (recall, precision),
+    "tuned": (recall, precision)}`` so the two operating points are marked.
+    """
+    fig, axes = plt.subplots(1, len(curves), figsize=(4.6 * len(curves), 4.2), squeeze=False)
+    for ax, (cls, c) in zip(axes[0], curves.items()):
+        ax.plot(c["recall"], c["precision"], color=BLUE, lw=2)
+        pts = chosen[cls]
+        ax.scatter(*pts["default"], color=GREY, s=60, zorder=3, label="scale 1 (argmax)")
+        ax.scatter(*pts["tuned"], color=ORANGE, s=60, zorder=3, label="tuned scale")
+        ax.set_xlabel(f"{cls} recall")
+        ax.set_ylabel(f"{cls} precision")
+        ax.set_xlim(0, 1.02)
+        ax.set_ylim(0, 1.02)
+        ax.set_title(f"{cls}: precision / recall trade-off")
+        ax.grid(alpha=0.25)
+        ax.legend(loc="upper right", fontsize=8)
+    fig.suptitle(title, fontsize=10)
+    fig.tight_layout()
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
