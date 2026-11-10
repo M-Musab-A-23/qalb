@@ -76,8 +76,6 @@ def plot_stage_comparison(rows: list[dict], path) -> None:
     axes[0].bar(x - 0.2, cv, 0.4, color=GREY, label="DS1 cross-validation")
     axes[0].bar(x + 0.2, ds2, 0.4, color=BLUE, label="DS2 test")
     axes[0].set_title("macro-F1 (N, S, V, F)")
-    for ax, key, title, col in [(axes[1], None, None, None)]:
-        pass
     w = 0.26
     for i, (cls, color) in enumerate([("S", ORANGE), ("V", BLUE), ("F", GREY)]):
         vals = [r["ds2"]["per_class"][cls]["recall"] for r in rows]
