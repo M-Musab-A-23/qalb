@@ -4,12 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/brand";
 import { NavItem } from "@/components/ui/NavItem";
-import { navEntries } from "@/lib/nav";
+import { useNavEntries } from "@/lib/hooks/useNavEntries";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { SidebarUser } from "./SidebarUser";
+import { CurrentUser } from "./CurrentUser";
+import { SignOutButton } from "./SignOutButton";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const entries = useNavEntries();
 
   return (
     <aside className="glass hidden h-full w-[260px] shrink-0 flex-col gap-2 rounded-[24px] lg:flex px-5 pt-7 pb-6">
@@ -17,7 +19,7 @@ export function Sidebar() {
         <Logo />
       </Link>
       <nav aria-label="Main" className="mt-6 flex flex-col gap-2">
-        {navEntries.map(({ href, label, icon: Icon }) => (
+        {entries.map(({ href, label, icon: Icon }) => (
           <NavItem
             key={href}
             href={href}
@@ -27,11 +29,12 @@ export function Sidebar() {
           />
         ))}
       </nav>
-      <div className="mt-auto flex items-center gap-2">
-        <div className="min-w-0 flex-1">
-          <SidebarUser name="Musab" role="Administrator" initials="MM" />
+      <div className="mt-auto flex flex-col gap-2">
+        <CurrentUser />
+        <div className="flex items-center justify-between">
+          <ThemeToggle />
+          <SignOutButton />
         </div>
-        <ThemeToggle />
       </div>
     </aside>
   );
