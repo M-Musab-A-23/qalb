@@ -10,7 +10,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
-      <div className="auth-frame flex w-full max-w-[1120px] flex-col gap-4 lg:max-w-none">
+      <div className="auth-frame flex flex-col gap-4">
         <AuthCard initialMode={mode} />
         <p className="text-sm leading-5 text-[var(--color-text-subtle)]">
           QALB uses simulated data. It is not a medical device. Do not enter

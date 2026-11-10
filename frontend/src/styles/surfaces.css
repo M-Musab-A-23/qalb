@@ -59,6 +59,11 @@
     );
   }
 
+  .auth-frame {
+    width: 100%;
+    max-width: 1120px;
+  }
+
   @media (min-width: 1024px) {
     .auth-frame {
       width: calc(1120px * var(--stage-scale));
