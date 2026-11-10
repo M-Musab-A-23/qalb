@@ -77,8 +77,8 @@ def parse_text(text: str, fs: float = FS) -> tuple[np.ndarray, float, dict]:
     if len(dt) == 0 or np.median(dt) <= 0 or not np.all(np.isfinite(dt)):
         raise InputError("The time column is not increasing, so the sampling rate cannot be read.")
     median_dt = float(np.median(dt))
-    inferred = 1.0 / median_dt if median_dt < 1.0 and t[-1] - t[0] < 10_000 and median_dt < 0.5 \
-        else 1000.0 / median_dt
+    # a step of 0.2 or more can only be milliseconds; smaller steps are seconds
+    inferred = 1000.0 / median_dt if median_dt >= 0.2 else 1.0 / median_dt
     return v, float(inferred), {"layout": "time+value", "columns_used": [0, 1],
                                 "inferred_fs": round(float(inferred), 2)}
 
