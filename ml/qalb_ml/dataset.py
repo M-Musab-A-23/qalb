@@ -48,3 +48,45 @@ def load_ds1(cache: bool = True):
 
 def load_ds2(cache: bool = True):
     return build_split(DS2, "ds2" if cache else None)
+
+
+def record_beats(name: str, raw_dir: Path | None = None):
+    """Normalised beats plus the RR context of one record.
+
+    Returns a dict with ``beats``, ``kept`` (peak samples), ``y``, ``rr``
+    (v1 RR features) and ``ctx`` (v2 RR context), all aligned per beat.
+    """
+    from .features import rr_features
+    from .features_v2 import rr_context
+    from .preprocess import segment_beats
+
+    kwargs = {} if raw_dir is None else {"raw_dir": raw_dir}
+    sig, fs, peaks, labels = load_record(name, **kwargs)
+    clean = clean_signal(sig, fs)
+    beats, kept = segment_beats(clean, peaks)
+    idx = np.searchsorted(peaks, kept)
+    y = np.array([CLASSES.index(l) for l in labels[idx]], dtype=int)
+    return {"beats": beats.astype(np.float32), "kept": kept, "y": y,
+            "rr": rr_features(peaks, fs)[idx], "ctx": rr_context(peaks, fs)[idx]}
+
+
+def build_beat_split(records: list[str], cache_name: str | None = None) -> dict:
+    """Stack ``record_beats`` over records and add ``groups`` (record per beat)."""
+    if cache_name:
+        f = CACHE_DIR / f"{cache_name}_beats.npz"
+        if f.exists():
+            d = np.load(f, allow_pickle=True)
+            return {k: d[k] for k in d.files}
+    parts = [record_beats(r) for r in records]
+    out = {k: np.concatenate([p[k] for p in parts]) for k in parts[0]}
+    out["groups"] = np.concatenate([np.full(len(p["y"]), r) for p, r in zip(parts, records)])
+    if cache_name:
+        CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(CACHE_DIR / f"{cache_name}_beats.npz", **out)
+    return out
+
+
+def load_beats(split: str, cache: bool = True) -> dict:
+    """Beat-level arrays for ``"ds1"`` or ``"ds2"`` (cached under ``.cache/``)."""
+    records = {"ds1": DS1, "ds2": DS2}[split]
+    return build_beat_split(records, split if cache else None)
