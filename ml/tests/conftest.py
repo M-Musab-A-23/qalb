@@ -35,3 +35,21 @@ def short_record():
     n = 30 * fs
     keep = peaks < n
     return sig[:n], fs, peaks[keep], labels[keep]
+
+
+@pytest.fixture(scope="session")
+def tiny_model(tmp_path_factory):
+    """A small forest trained on a few DS1 records, so predict tests never need train.py."""
+    if not RAW_DIR.exists():
+        pytest.skip("raw data not downloaded")
+    import joblib
+    from sklearn.ensemble import RandomForestClassifier
+    from qalb_ml.config import CLASSES
+    from qalb_ml.dataset import record_dataset
+    Xs, ys = zip(*[record_dataset(r)[:2] for r in ["106", "119", "208", "209"]])
+    clf = RandomForestClassifier(n_estimators=40, random_state=0, n_jobs=-1)
+    clf.fit(np.vstack(Xs), np.concatenate(ys))
+    path = tmp_path_factory.mktemp("model") / "tiny.joblib"
+    joblib.dump({"model": clf, "name": "tiny_forest", "classes": CLASSES,
+                 "n_features": int(Xs[0].shape[1]), "version": "test"}, path)
+    return path
