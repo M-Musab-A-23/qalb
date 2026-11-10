@@ -1,0 +1,421 @@
+{
+ "schema_version": "1.0",
+ "model": {
+  "name": "gradient_boosting",
+  "version": "1.0"
+ },
+ "sampling_rate_in": 360.0,
+ "sampling_rate_model": 360.0,
+ "duration_s": 30.242,
+ "beats": [
+  {
+   "sample": 241,
+   "time_s": 0.669,
+   "class": "N",
+   "confidence": 0.414
+  },
+  {
+   "sample": 414,
+   "time_s": 1.15,
+   "class": "V",
+   "confidence": 0.914
+  },
+  {
+   "sample": 562,
+   "time_s": 1.561,
+   "class": "V",
+   "confidence": 0.953
+  },
+  {
+   "sample": 877,
+   "time_s": 2.436,
+   "class": "N",
+   "confidence": 0.915
+  },
+  {
+   "sample": 1044,
+   "time_s": 2.9,
+   "class": "V",
+   "confidence": 0.853
+  },
+  {
+   "sample": 1305,
+   "time_s": 3.625,
+   "class": "N",
+   "confidence": 0.687
+  },
+  {
+   "sample": 1510,
+   "time_s": 4.194,
+   "class": "V",
+   "confidence": 0.502
+  },
+  {
+   "sample": 1719,
+   "time_s": 4.775,
+   "class": "N",
+   "confidence": 0.723
+  },
+  {
+   "sample": 1928,
+   "time_s": 5.356,
+   "class": "N",
+   "confidence": 0.766
+  },
+  {
+   "sample": 2136,
+   "time_s": 5.933,
+   "class": "F",
+   "confidence": 0.655
+  },
+  {
+   "sample": 2286,
+   "time_s": 6.35,
+   "class": "V",
+   "confidence": 0.942
+  },
+  {
+   "sample": 2560,
+   "time_s": 7.111,
+   "class": "N",
+   "confidence": 0.428
+  },
+  {
+   "sample": 2773,
+   "time_s": 7.703,
+   "class": "N",
+   "confidence": 0.459
+  },
+  {
+   "sample": 2977,
+   "time_s": 8.269,
+   "class": "N",
+   "confidence": 0.501
+  },
+  {
+   "sample": 3177,
+   "time_s": 8.825,
+   "class": "V",
+   "confidence": 0.578
+  },
+  {
+   "sample": 3320,
+   "time_s": 9.222,
+   "class": "V",
+   "confidence": 0.959
+  },
+  {
+   "sample": 3611,
+   "time_s": 10.031,
+   "class": "N",
+   "confidence": 0.519
+  },
+  {
+   "sample": 3768,
+   "time_s": 10.467,
+   "class": "V",
+   "confidence": 0.955
+  },
+  {
+   "sample": 4025,
+   "time_s": 11.181,
+   "class": "F",
+   "confidence": 0.501
+  },
+  {
+   "sample": 4204,
+   "time_s": 11.678,
+   "class": "V",
+   "confidence": 0.946
+  },
+  {
+   "sample": 4437,
+   "time_s": 12.325,
+   "class": "N",
+   "confidence": 0.813
+  },
+  {
+   "sample": 4646,
+   "time_s": 12.906,
+   "class": "N",
+   "confidence": 0.51
+  },
+  {
+   "sample": 4849,
+   "time_s": 13.469,
+   "class": "F",
+   "confidence": 0.545
+  },
+  {
+   "sample": 5013,
+   "time_s": 13.925,
+   "class": "V",
+   "confidence": 0.863
+  },
+  {
+   "sample": 5260,
+   "time_s": 14.611,
+   "class": "F",
+   "confidence": 0.449
+  },
+  {
+   "sample": 5460,
+   "time_s": 15.167,
+   "class": "F",
+   "confidence": 0.805
+  },
+  {
+   "sample": 5664,
+   "time_s": 15.733,
+   "class": "N",
+   "confidence": 0.785
+  },
+  {
+   "sample": 5847,
+   "time_s": 16.242,
+   "class": "V",
+   "confidence": 0.908
+  },
+  {
+   "sample": 5998,
+   "time_s": 16.661,
+   "class": "V",
+   "confidence": 0.955
+  },
+  {
+   "sample": 6279,
+   "time_s": 17.442,
+   "class": "N",
+   "confidence": 0.767
+  },
+  {
+   "sample": 6482,
+   "time_s": 18.006,
+   "class": "N",
+   "confidence": 0.403
+  },
+  {
+   "sample": 6683,
+   "time_s": 18.564,
+   "class": "N",
+   "confidence": 0.498
+  },
+  {
+   "sample": 6885,
+   "time_s": 19.125,
+   "class": "F",
+   "confidence": 0.889
+  },
+  {
+   "sample": 7063,
+   "time_s": 19.619,
+   "class": "V",
+   "confidence": 0.878
+  },
+  {
+   "sample": 7216,
+   "time_s": 20.044,
+   "class": "V",
+   "confidence": 0.969
+  },
+  {
+   "sample": 7506,
+   "time_s": 20.85,
+   "class": "N",
+   "confidence": 0.549
+  },
+  {
+   "sample": 7714,
+   "time_s": 21.428,
+   "class": "F",
+   "confidence": 0.505
+  },
+  {
+   "sample": 7880,
+   "time_s": 21.889,
+   "class": "V",
+   "confidence": 0.973
+  },
+  {
+   "sample": 8118,
+   "time_s": 22.55,
+   "class": "F",
+   "confidence": 0.549
+  },
+  {
+   "sample": 8328,
+   "time_s": 23.133,
+   "class": "N",
+   "confidence": 0.748
+  },
+  {
+   "sample": 8475,
+   "time_s": 23.542,
+   "class": "V",
+   "confidence": 0.968
+  },
+  {
+   "sample": 8650,
+   "time_s": 24.028,
+   "class": "V",
+   "confidence": 0.803
+  },
+  {
+   "sample": 8791,
+   "time_s": 24.419,
+   "class": "V",
+   "confidence": 0.915
+  },
+  {
+   "sample": 9129,
+   "time_s": 25.358,
+   "class": "N",
+   "confidence": 0.758
+  },
+  {
+   "sample": 9300,
+   "time_s": 25.833,
+   "class": "V",
+   "confidence": 0.934
+  },
+  {
+   "sample": 9461,
+   "time_s": 26.281,
+   "class": "V",
+   "confidence": 0.971
+  },
+  {
+   "sample": 9753,
+   "time_s": 27.092,
+   "class": "N",
+   "confidence": 0.795
+  },
+  {
+   "sample": 9903,
+   "time_s": 27.508,
+   "class": "V",
+   "confidence": 0.936
+  },
+  {
+   "sample": 10283,
+   "time_s": 28.564,
+   "class": "V",
+   "confidence": 0.547
+  },
+  {
+   "sample": 10579,
+   "time_s": 29.386,
+   "class": "N",
+   "confidence": 0.845
+  }
+ ],
+ "rhythm": {
+  "n_beats": 50,
+  "class_counts": {
+   "N": 20,
+   "S": 0,
+   "V": 22,
+   "F": 8,
+   "Q": 0
+  },
+  "mean_hr_bpm": 102.4,
+  "rr_mean_s": 0.586,
+  "rr_cv": 0.262,
+  "rr_jump_fraction": 0.562,
+  "rhythm": "irregular"
+ },
+ "alerts": [
+  {
+   "type": "irregular_rhythm",
+   "severity": "medium",
+   "confidence": 0.865,
+   "start_sample": 241,
+   "end_sample": 10579,
+   "message": "Irregular rhythm: RR variation 26% with 56% large interval changes"
+  },
+  {
+   "type": "fast_rate",
+   "severity": "low",
+   "confidence": 0.524,
+   "start_sample": 241,
+   "end_sample": 10579,
+   "message": "Fast heart rate: 102 bpm"
+  },
+  {
+   "type": "ventricular_couplet",
+   "severity": "medium",
+   "confidence": 0.747,
+   "start_sample": 414,
+   "end_sample": 562,
+   "message": "Ventricular pattern: two consecutive ventricular beats"
+  },
+  {
+   "type": "ventricular_couplet",
+   "severity": "medium",
+   "confidence": 0.615,
+   "start_sample": 3177,
+   "end_sample": 3320,
+   "message": "Ventricular pattern: two consecutive ventricular beats"
+  },
+  {
+   "type": "ventricular_couplet",
+   "severity": "medium",
+   "confidence": 0.745,
+   "start_sample": 5847,
+   "end_sample": 5998,
+   "message": "Ventricular pattern: two consecutive ventricular beats"
+  },
+  {
+   "type": "ventricular_couplet",
+   "severity": "medium",
+   "confidence": 0.739,
+   "start_sample": 7063,
+   "end_sample": 7216,
+   "message": "Ventricular pattern: two consecutive ventricular beats"
+  },
+  {
+   "type": "ventricular_run",
+   "severity": "high",
+   "confidence": 0.895,
+   "start_sample": 8475,
+   "end_sample": 8791,
+   "message": "Ventricular pattern: run of 3 ventricular beats (~137 bpm)"
+  },
+  {
+   "type": "ventricular_couplet",
+   "severity": "medium",
+   "confidence": 0.762,
+   "start_sample": 9300,
+   "end_sample": 9461,
+   "message": "Ventricular pattern: two consecutive ventricular beats"
+  },
+  {
+   "type": "ventricular_couplet",
+   "severity": "medium",
+   "confidence": 0.593,
+   "start_sample": 9903,
+   "end_sample": 10283,
+   "message": "Ventricular pattern: two consecutive ventricular beats"
+  }
+ ],
+ "quality": {
+  "score": 0.9,
+  "flatline_fraction": 0.0,
+  "noise_ratio": 0.0011,
+  "beat_agreement": 0.912,
+  "rate_plausibility": 1.0
+ },
+ "warnings": [],
+ "disclaimer": "QALB is a research and monitoring prototype. It is not a medical device and must not be used for diagnosis or treatment decisions.",
+ "input": {
+  "filename": "sample_ventricular_233.csv",
+  "original_sampling_rate": 357.14285714283983,
+  "layout": "time+value",
+  "columns_used": [
+   0,
+   1
+  ],
+  "inferred_fs": 357.14,
+  "duration_s": 30.24
+ }
+}

@@ -1,0 +1,265 @@
+{
+ "schema_version": "1.0",
+ "model": {
+  "name": "gradient_boosting",
+  "version": "1.0"
+ },
+ "sampling_rate_in": 360.0,
+ "sampling_rate_model": 360.0,
+ "duration_s": 30.0,
+ "beats": [
+  {
+   "sample": 129,
+   "time_s": 0.358,
+   "class": "N",
+   "confidence": 0.985
+  },
+  {
+   "sample": 429,
+   "time_s": 1.192,
+   "class": "N",
+   "confidence": 0.985
+  },
+  {
+   "sample": 721,
+   "time_s": 2.003,
+   "class": "N",
+   "confidence": 0.984
+  },
+  {
+   "sample": 1003,
+   "time_s": 2.786,
+   "class": "N",
+   "confidence": 0.981
+  },
+  {
+   "sample": 1281,
+   "time_s": 3.558,
+   "class": "N",
+   "confidence": 0.983
+  },
+  {
+   "sample": 1564,
+   "time_s": 4.344,
+   "class": "N",
+   "confidence": 0.986
+  },
+  {
+   "sample": 1853,
+   "time_s": 5.147,
+   "class": "N",
+   "confidence": 0.984
+  },
+  {
+   "sample": 2156,
+   "time_s": 5.989,
+   "class": "N",
+   "confidence": 0.985
+  },
+  {
+   "sample": 2453,
+   "time_s": 6.814,
+   "class": "N",
+   "confidence": 0.986
+  },
+  {
+   "sample": 2745,
+   "time_s": 7.625,
+   "class": "N",
+   "confidence": 0.983
+  },
+  {
+   "sample": 3025,
+   "time_s": 8.403,
+   "class": "N",
+   "confidence": 0.983
+  },
+  {
+   "sample": 3313,
+   "time_s": 9.203,
+   "class": "N",
+   "confidence": 0.986
+  },
+  {
+   "sample": 3597,
+   "time_s": 9.992,
+   "class": "N",
+   "confidence": 0.986
+  },
+  {
+   "sample": 3885,
+   "time_s": 10.792,
+   "class": "N",
+   "confidence": 0.985
+  },
+  {
+   "sample": 4180,
+   "time_s": 11.611,
+   "class": "N",
+   "confidence": 0.984
+  },
+  {
+   "sample": 4488,
+   "time_s": 12.467,
+   "class": "N",
+   "confidence": 0.984
+  },
+  {
+   "sample": 4786,
+   "time_s": 13.294,
+   "class": "N",
+   "confidence": 0.982
+  },
+  {
+   "sample": 5070,
+   "time_s": 14.083,
+   "class": "N",
+   "confidence": 0.983
+  },
+  {
+   "sample": 5352,
+   "time_s": 14.867,
+   "class": "N",
+   "confidence": 0.983
+  },
+  {
+   "sample": 5637,
+   "time_s": 15.658,
+   "class": "N",
+   "confidence": 0.985
+  },
+  {
+   "sample": 5936,
+   "time_s": 16.489,
+   "class": "N",
+   "confidence": 0.984
+  },
+  {
+   "sample": 6233,
+   "time_s": 17.314,
+   "class": "N",
+   "confidence": 0.984
+  },
+  {
+   "sample": 6532,
+   "time_s": 18.144,
+   "class": "N",
+   "confidence": 0.984
+  },
+  {
+   "sample": 6831,
+   "time_s": 18.975,
+   "class": "N",
+   "confidence": 0.985
+  },
+  {
+   "sample": 7126,
+   "time_s": 19.794,
+   "class": "N",
+   "confidence": 0.985
+  },
+  {
+   "sample": 7414,
+   "time_s": 20.594,
+   "class": "N",
+   "confidence": 0.983
+  },
+  {
+   "sample": 7694,
+   "time_s": 21.372,
+   "class": "N",
+   "confidence": 0.982
+  },
+  {
+   "sample": 7980,
+   "time_s": 22.167,
+   "class": "N",
+   "confidence": 0.986
+  },
+  {
+   "sample": 8273,
+   "time_s": 22.981,
+   "class": "N",
+   "confidence": 0.985
+  },
+  {
+   "sample": 8582,
+   "time_s": 23.839,
+   "class": "N",
+   "confidence": 0.984
+  },
+  {
+   "sample": 8887,
+   "time_s": 24.686,
+   "class": "N",
+   "confidence": 0.986
+  },
+  {
+   "sample": 9179,
+   "time_s": 25.497,
+   "class": "N",
+   "confidence": 0.986
+  },
+  {
+   "sample": 9465,
+   "time_s": 26.292,
+   "class": "N",
+   "confidence": 0.976
+  },
+  {
+   "sample": 9748,
+   "time_s": 27.078,
+   "class": "N",
+   "confidence": 0.98
+  },
+  {
+   "sample": 10036,
+   "time_s": 27.878,
+   "class": "N",
+   "confidence": 0.985
+  },
+  {
+   "sample": 10328,
+   "time_s": 28.689,
+   "class": "N",
+   "confidence": 0.984
+  },
+  {
+   "sample": 10624,
+   "time_s": 29.511,
+   "class": "N",
+   "confidence": 0.984
+  }
+ ],
+ "rhythm": {
+  "n_beats": 37,
+  "class_counts": {
+   "N": 37,
+   "S": 0,
+   "V": 0,
+   "F": 0,
+   "Q": 0
+  },
+  "mean_hr_bpm": 74.1,
+  "rr_mean_s": 0.81,
+  "rr_cv": 0.028,
+  "rr_jump_fraction": 0.0,
+  "rhythm": "regular"
+ },
+ "alerts": [],
+ "quality": {
+  "score": 0.81,
+  "flatline_fraction": 0.167,
+  "noise_ratio": 0.015,
+  "beat_agreement": 0.991,
+  "rate_plausibility": 1.0
+ },
+ "warnings": [],
+ "disclaimer": "QALB is a research and monitoring prototype. It is not a medical device and must not be used for diagnosis or treatment decisions.",
+ "input": {
+  "filename": "sample_normal_100.csv",
+  "original_sampling_rate": 360.0,
+  "layout": "samples",
+  "duration_s": 30.0
+ }
+}
