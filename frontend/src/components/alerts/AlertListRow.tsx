@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import type { AlertItem } from "@/lib/data";
+import { SOURCE_LABELS, type AlertItem } from "@/lib/data";
 
 export const alertColumns =
   "grid grid-cols-[200px_180px_minmax(0,1fr)_110px_140px] items-center gap-4";
@@ -16,8 +16,13 @@ export function AlertListRow({
     <div
       className={`${alertColumns} border-b border-[var(--color-border-subtle)] px-5 py-3 last:border-b-0`}
     >
-      <span>
+      <span className="flex min-w-0 flex-col items-start gap-1">
         <StatusBadge status={alert.severity} label={alert.title} />
+        {alert.source ? (
+          <span className="font-mono text-[11px] leading-4 font-medium tracking-[0.2px] text-[var(--color-text-subtle)] uppercase">
+            {SOURCE_LABELS[alert.source]}
+          </span>
+        ) : null}
       </span>
       <span className="flex min-w-0 flex-col gap-[2px] font-medium">
         <span className="text-sm leading-5 text-[var(--color-text-primary)]">
