@@ -4,6 +4,7 @@
 
 POST /analyze   multipart upload: file (CSV/TXT, or .dat + .hea), fs (Hz, default 360)
 GET  /health    liveness and model status
+GET  /live/records, /live/{record}   live replay (see live.py)
 """
 from __future__ import annotations
 
@@ -13,6 +14,7 @@ from pathlib import Path
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 
 from inputs import InputError, load_ecg
+from live import router as live_router
 from predict import MODEL_PATH, active_name, analyse_recording, load_model
 from qalb_ml.config import DISCLAIMER, FS
 
@@ -20,6 +22,7 @@ MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 
 app = FastAPI(title="QALB ECG analysis", version="1.0",
               description=DISCLAIMER)
+app.include_router(live_router)
 
 
 @app.get("/health")
