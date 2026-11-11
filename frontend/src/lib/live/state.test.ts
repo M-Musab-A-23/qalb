@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   deriveStatus,
+  heartRateBand,
   initialMonitorState,
   MAX_ALERTS_KEPT,
   qualityLabel,
@@ -143,5 +144,16 @@ describe("labels", () => {
     expect(qualityLabel(0.5)).toBe("Fair");
     expect(qualityLabel(0.1)).toBe("Poor");
     expect(qualityLabel(null)).toBe("Unknown");
+  });
+});
+
+describe("heartRateBand", () => {
+  it("flags fast and slow rates and accepts the resting range", () => {
+    expect(heartRateBand(null)).toEqual({ status: "normal", label: "Waiting for data" });
+    expect(heartRateBand(72).label).toBe("Resting range");
+    expect(heartRateBand(130)).toEqual({ status: "warning", label: "Fast rate" });
+    expect(heartRateBand(44)).toEqual({ status: "warning", label: "Slow rate" });
+    expect(heartRateBand(100).status).toBe("normal");
+    expect(heartRateBand(50).status).toBe("normal");
   });
 });

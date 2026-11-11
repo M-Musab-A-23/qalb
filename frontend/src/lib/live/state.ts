@@ -125,3 +125,11 @@ export function qualityLabel(quality: number | null): "Good" | "Fair" | "Poor" |
   if (quality >= 0.4) return "Fair";
   return "Poor";
 }
+
+/** Colour and wording for a heart rate: normal between 50 and 100 beats per minute at rest. */
+export function heartRateBand(heartRate: number | null): { status: Status; label: string } {
+  if (heartRate === null) return { status: "normal", label: "Waiting for data" };
+  if (heartRate > 100) return { status: "warning", label: "Fast rate" };
+  if (heartRate < 50) return { status: "warning", label: "Slow rate" };
+  return { status: "normal", label: "Resting range" };
+}
