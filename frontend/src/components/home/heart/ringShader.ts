@@ -17,7 +17,7 @@ const fragment = /* glsl */ `
   void main() {
     float behind = fract(vAlong - uPhase);
     float trail = pow(1.0 - behind, 7.0);
-    float a = uOpacity * (0.14 + 0.86 * trail);
+    float a = uOpacity * (0.3 + 0.7 * trail);
     gl_FragColor = vec4(uColor, a);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
