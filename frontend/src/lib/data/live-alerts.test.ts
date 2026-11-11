@@ -52,6 +52,13 @@ describe("createLiveAlertStore", () => {
     expect(store.list()).toHaveLength(1);
   });
 
+  it("does not call a simulated alert a model result", () => {
+    const { store } = clockStore();
+    const item = store.add(input({ source: "simulated" }));
+    expect(item?.source).toBe("simulated");
+    expect(item?.note).toBe("Simulated feed, not a model result");
+  });
+
   it("maps severity to the dashboard status", () => {
     const { store } = clockStore();
     expect(store.add(input({}, { alertType: "ventricular_run", severity: "high" }))?.severity).toBe("critical");

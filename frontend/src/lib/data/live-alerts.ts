@@ -103,7 +103,10 @@ export function createLiveAlertStore(options: LiveAlertStoreOptions = {}): LiveA
         patientId,
         deviceId,
         detail: alert.message,
-        note: `${SOURCE_LABELS[source]}, record ${record}, model confidence ${Math.round(alert.confidence * 100)}%`,
+        note:
+          source === "simulated"
+            ? "Simulated feed, not a model result"
+            : `${SOURCE_LABELS[source]}, record ${record}, model confidence ${Math.round(alert.confidence * 100)}%`,
         time: clock(at),
         acknowledged: false,
         source,
