@@ -220,13 +220,59 @@ curl -F "file=@samples/sample_ventricular_233.csv" -F "fs=360" http://localhost:
 `samples/` holds two 30 s demo CSVs cut from DS2 records 100 (one column) and
 233 (time,value). Recreate them with `python make_samples.py`.
 
+### Live replay
+`live.py` is a stand-in for a device, MQTT, edge and backend: it replays a
+MIT-BIH record as a live stream so a dashboard can show monitoring without
+hardware. The router is mounted in `api.py`, so the same `uvicorn api:app`
+serves it.
+
+* `GET /live/records` lists the allowed demo records with a short label.
+  Only DS2 (held-out test) records are offered: 100, 123, 105, 200, 221, 233.
+  Any other name, including the training records, gives 404.
+* `GET /live/{record}?speed=1&offset=0` is a Server-Sent Events stream.
+  `speed` is 1, 2 or 5 (anything else is 422), `offset` is the start in
+  seconds, `samples=false` leaves out the signal, `truth=false` leaves out the
+  annotated labels, and `ticks=N` stops after N steps (for tests and `curl`).
+  The stream loops at the end of the record and never closes by itself.
+
+Every 250 ms of wall-clock time the stream sends the new samples
+(`0.25 * speed` seconds of signal, 360 Hz downsampled to 120 Hz for the wire).
+Every 2 seconds it runs the model on the latest 10 seconds (11 seconds at 5x,
+so a beat on a window edge is seen by the next window) and sends the beats it
+has not sent before, rhythm alerts that start a new episode, and a status.
+
+Each message is one `data:` line holding JSON with a `type` field. Times are
+stream seconds since the stream started and keep increasing across loops;
+`record_t` is the position in the record.
+```
+{"type":"samples","seq":12,"t":3.0,"record_t":123.0,"fs":120,"values":[0.12,0.14]}
+{"type":"beats","beats":[{"t":2.61,"record_t":122.61,"class":"V","confidence":0.99,"ground_truth":"V"}]}
+{"type":"alert","id":"233-ventricular_couplet-43316","alert_type":"ventricular_couplet",
+ "severity":"medium","confidence":0.76,"message":"...","t":2.6,"end_t":3.0,"record_t":122.6}
+{"type":"status","state":"streaming","record":"233","speed":1,"t":10.0,"record_t":130.0,
+ "loop":0,"hr_bpm":105.4,"rhythm":"irregular","quality":0.65,"n_beats":17,
+ "class_counts":{"N":10,"S":0,"V":7,"F":0,"Q":0},"model":{"name":"boosting_cnn_ensemble","version":"2.0"},"warnings":[]}
+```
+`state` is `started` (first message), `streaming` or `loop` (the record wrapped
+around). `class` is always the model's prediction. `ground_truth` is the
+annotated class of the nearest beat and is there only so a demo can show how
+the model compares; it is never used to produce a prediction. A window that
+fails to analyse adds a warning to the status and the stream carries on. The
+model is loaded before the first stream starts, so the first connection can
+take a few seconds.
+
+```
+curl -N "http://localhost:8000/live/233?speed=5&offset=120&ticks=16"
+```
+
 ### Tests
 ```
 pytest
 ```
 Tests that need MIT-BIH data skip themselves when `data/raw` is missing.
 `tests/conftest.py` trains a tiny model on four records, so tests do not need
-`train.py` to have run.
+`train.py` to have run. `tests/test_live.py` covers the replay on a short
+synthetic record with a fake analyser and never waits in real time.
 
 > QALB is a research and monitoring prototype. It is not a medical device and
 > must not be used for diagnosis or treatment decisions.
