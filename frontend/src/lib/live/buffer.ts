@@ -19,6 +19,8 @@ export class RollingTrace {
   /** Stream time of the newest sample. */
   private endT = 0;
   private beatList: TraceBeat[] = [];
+  /** Wall-clock time (ms) of the latest block, so the view can scroll between blocks. */
+  updatedAt = 0;
 
   constructor(
     readonly seconds: number,
@@ -65,7 +67,7 @@ export class RollingTrace {
   }
 
   /** Appends samples whose first value is at stream time `t`. */
-  pushSamples(t: number, values: ArrayLike<number>): void {
+  pushSamples(t: number, values: ArrayLike<number>, now = Date.now()): void {
     if (values.length === 0) return;
     // A gap of more than a sample (a reconnect) restarts the trace instead of
     // drawing a false line across it.
@@ -78,6 +80,7 @@ export class RollingTrace {
     }
     this.count = Math.min(this.values.length, this.count + values.length);
     this.endT = t + (values.length - 1) / this.fs;
+    this.updatedAt = now;
     this.trimBeats();
   }
 
@@ -105,6 +108,7 @@ export class RollingTrace {
     this.head = 0;
     this.count = 0;
     this.endT = 0;
+    this.updatedAt = 0;
     this.beatList = [];
   }
 
