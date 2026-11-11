@@ -38,7 +38,7 @@ describe("upstreamQuery", () => {
 
 describe("forwardLiveStream", () => {
   it("streams the upstream event stream through", async () => {
-    const fetchImpl = vi.fn(async () =>
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
       new Response(sseBody('data: {"type":"status"}\n\n'), { status: 200 }),
     );
     const response = await forwardLiveStream(request("233?speed=2&offset=10"), "233", {
@@ -109,7 +109,7 @@ describe("forwardLiveStream", () => {
 
 describe("forwardRecordList", () => {
   it("returns the record list", async () => {
-    const fetchImpl = vi.fn(async () => Response.json({ records: [{ record: "100", label: "x" }] }));
+    const fetchImpl = vi.fn<typeof fetch>(async () => Response.json({ records: [{ record: "100", label: "x" }] }));
     const response = await forwardRecordList({ baseUrl: "http://ml:9000", fetchImpl: asFetch(fetchImpl) });
     expect(await response.json()).toEqual({ records: [{ record: "100", label: "x" }] });
     expect(fetchImpl.mock.calls[0][0]).toBe("http://ml:9000/live/records");

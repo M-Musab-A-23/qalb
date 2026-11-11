@@ -66,7 +66,7 @@ afterEach(() => {
 describe("createReplayFeed", () => {
   it("requests the proxy route with record, speed and offset", async () => {
     const stream = openStream();
-    const fetchImpl = vi.fn(async () => stream.response);
+    const fetchImpl = vi.fn<typeof fetch>(async () => stream.response);
     const feed = createReplayFeed({ fetchImpl: fetchImpl as unknown as typeof fetch });
     feed.connect(target);
     await flush();
@@ -75,7 +75,7 @@ describe("createReplayFeed", () => {
   });
 
   it("asks for a status-only stream when samples are not wanted", async () => {
-    const fetchImpl = vi.fn(async () => openStream().response);
+    const fetchImpl = vi.fn<typeof fetch>(async () => openStream().response);
     const feed = createReplayFeed({ fetchImpl: fetchImpl as unknown as typeof fetch });
     feed.connect({ ...target, samples: false });
     await flush();
