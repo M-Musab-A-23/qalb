@@ -152,3 +152,69 @@ class ReplaySession:
             self._episode_end.clear()
             events.append(self.status("loop"))
         return events
+
+    # -- analysis ---------------------------------------------------------
+    def _truth_near(self, sample: int) -> str | None:
+        """Annotated class of the beat closest to ``sample``, for the demo comparison."""
+        if len(self.peaks) == 0:
+            return None
+        i = int(np.searchsorted(self.peaks, sample))
+        best, gap = None, int(self.TRUTH_TOLERANCE_S * self.fs) + 1
+        for j in (i - 1, i):
+            if 0 <= j < len(self.peaks) and abs(int(self.peaks[j]) - sample) < gap:
+                best, gap = j, abs(int(self.peaks[j]) - sample)
+        return None if best is None else str(self.labels[best])
+
+    def _new_beats(self, result: dict, w0: int) -> list[dict]:
+        refractory = int(self.REFRACTORY_S * self.fs)
+        beats = []
+        for b in sorted(result["beats"], key=lambda b: b["sample"]):
+            sample = w0 + int(b["sample"])
+            if sample <= self._last_beat + refractory:
+                continue
+            beat = {"t": self.stream_t(sample), "record_t": round(sample / self.fs, 3),
+                    "class": b["class"], "confidence": b["confidence"]}
+            if self.truth:
+                beat["ground_truth"] = self._truth_near(sample)
+            beats.append(beat)
+            self._last_beat = sample
+        return beats
+
+    def _new_alerts(self, result: dict, w0: int) -> list[dict]:
+        """Alerts that start a new episode; a pattern still in view is not repeated."""
+        gap = int(self.ALERT_GAP_S * self.fs)
+        events = []
+        for a in result["alerts"]:
+            start, end = w0 + int(a["start_sample"]), w0 + int(a["end_sample"])
+            known = self._episode_end.get(a["type"])
+            self._episode_end[a["type"]] = max(end, known if known is not None else end)
+            if known is not None and start <= known + gap:
+                continue
+            events.append({"type": "alert", "id": f"{self.record}-{a['type']}-{start}",
+                           "alert_type": a["type"], "severity": a["severity"],
+                           "confidence": a["confidence"], "message": a["message"],
+                           "t": self.stream_t(start), "end_t": self.stream_t(end),
+                           "record_t": round(start / self.fs, 3)})
+        return events
+
+    def _analyse_window(self) -> list[dict]:
+        w1 = self.pos
+        w0 = max(0, w1 - int(WINDOW_S * self.fs))
+        if w1 - w0 < int(MIN_WINDOW_S * self.fs):
+            return [self.status("streaming")]
+        try:
+            result = self.analyse(self.signal[w0:w1], self.fs)
+        except Exception as exc:  # a bad window must not end the stream
+            return [self.status("streaming", warnings=[f"analysis failed: {exc}"])]
+        events = []
+        beats = self._new_beats(result, w0)
+        if beats:
+            events.append({"type": "beats", "beats": beats})
+        events.extend(self._new_alerts(result, w0))
+        rhythm = result["rhythm"]
+        events.append(self.status(
+            "streaming", hr_bpm=rhythm.get("mean_hr_bpm"), rhythm=rhythm.get("rhythm"),
+            quality=result["quality"].get("score"), n_beats=rhythm.get("n_beats"),
+            class_counts=rhythm.get("class_counts"), model=result.get("model"),
+            warnings=result.get("warnings", [])))
+        return events
