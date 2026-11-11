@@ -8,6 +8,11 @@ import {
   type NewAnalysis,
   type StoredAnalysis,
 } from "./analyses";
+import {
+  createLiveAlertStore,
+  type LiveAlertInput,
+  type LiveAlertStore,
+} from "./live-alerts";
 import { scopeAlerts, scopeDevices, scopePatients } from "./scope";
 import {
   baselineVitals,
@@ -42,6 +47,8 @@ export type {
 export { ECG_SAMPLE_RATE } from "@/lib/mock";
 export { HistoryStorageError } from "./analyses";
 export type { NewAnalysis, StoredAnalysis, StoredSignal } from "./analyses";
+export { SOURCE_LABELS, alertTitle, severityStatus } from "./live-alerts";
+export type { LiveAlertInput } from "./live-alerts";
 
 export function getPatients(): Patient[] {
   return mockPatients;
@@ -89,7 +96,38 @@ export function getDevicesFor(user: User): Device[] {
 }
 
 export function getAlertsFor(user: User): AlertItem[] {
-  return scopeAlerts(user, mockAlerts);
+  return scopeAlerts(user, [...liveAlerts().list(), ...mockAlerts]);
+}
+
+// Alerts raised by a live feed during this session. A real backend replaces
+// these with its own alert stream; the pages only call the functions below.
+let liveAlertStore: LiveAlertStore | null = null;
+
+function liveAlerts(): LiveAlertStore {
+  liveAlertStore ??= createLiveAlertStore();
+  return liveAlertStore;
+}
+
+/** Adds an alert from a live feed. Returns null when it repeats a recent one. */
+export function recordLiveAlert(input: LiveAlertInput): AlertItem | null {
+  return liveAlerts().add(input);
+}
+
+/** Alerts raised by live feeds this session, newest first. */
+export function getLiveAlerts(): AlertItem[] {
+  return liveAlerts().list();
+}
+
+export function subscribeLiveAlerts(listener: () => void): () => void {
+  return liveAlerts().subscribe(listener);
+}
+
+export function acknowledgeLiveAlert(id: string): void {
+  liveAlerts().acknowledge(id);
+}
+
+export function acknowledgeAllLiveAlerts(): void {
+  liveAlerts().acknowledgeAll();
 }
 
 // Analysis history. The calls are async so a real API can replace the
