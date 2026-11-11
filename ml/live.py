@@ -10,7 +10,10 @@ was trained on.
 """
 from __future__ import annotations
 
-from qalb_ml.config import DS2, PACED_RECORDS
+import numpy as np
+from scipy.signal import resample_poly
+
+from qalb_ml.config import DS2, FS, PACED_RECORDS
 
 TICK_S = 0.25            # wall-clock seconds between sample events
 ANALYSIS_S = 2.0         # wall-clock seconds between model runs
@@ -30,3 +33,21 @@ DEMO_RECORDS: dict[str, str] = {
 }
 
 assert all(r in DS2 and r not in PACED_RECORDS for r in DEMO_RECORDS)
+
+
+class UnknownRecord(KeyError):
+    """The requested record is not one of the allowed demo records."""
+
+
+def check_record(name: str) -> str:
+    if name not in DEMO_RECORDS:
+        raise UnknownRecord(name)
+    return name
+
+
+def to_wire(signal: np.ndarray, fs: int = FS, wire_fs: int = WIRE_FS) -> np.ndarray:
+    """Downsample a whole record for the wire (anti-aliased, 360 Hz to 120 Hz)."""
+    if fs == wire_fs:
+        return np.asarray(signal, dtype=float)
+    g = int(np.gcd(int(fs), int(wire_fs)))
+    return resample_poly(np.asarray(signal, dtype=float), wire_fs // g, int(fs) // g)
