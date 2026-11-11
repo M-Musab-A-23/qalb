@@ -185,6 +185,36 @@ src/components/home/HeroHeart  the component the page uses
 src/components/home/heart      the 3D scene, loaded on demand
 ```
 
+### Props
+
+```tsx
+<HeroHeart bpm={72} className="size-full" />
+```
+
+| Prop | Type | Default | Meaning |
+|------|------|---------|---------|
+| `bpm` | `number` | `72` | Heart rate the beat follows. Missing or invalid values use 72; values are limited to 30 to 220 |
+| `className` | `string` | none | Sizes the box. The box must have a size (the hero uses a square) because the heart fills it |
+
+`HeroSection` and `HomePage` take the same optional `bpm` and pass it down, and
+`HeroSection` shows it in the heart rate tile. The home page has no live feed
+today, so nothing sets it and it stays at 72. A page that has a feed (for
+example the replayed patient's heart rate from `useLiveMonitor`) can pass the
+current rate to `HomePage`.
+
+### Animation
+
+* **Beat**: a double beat (a strong contraction, then a softer one), each quick
+  to contract and slower to release, at `bpm`. The glow brightens with each
+  contraction and the ring heads travel one half lap per beat. The beat phase is
+  accumulated per frame, so changing `bpm` never makes the heart jump. The
+  timing is `src/lib/heart/pulse.ts`.
+* **Idle rotation**: one slow turn in about 35 seconds.
+* **Parallax**: the heart tilts up to about 6 degrees toward the cursor. Touch
+  input is ignored.
+* **Reduced motion**: the heart is drawn still, with no beat, rotation or
+  parallax, and only redraws when the theme or size changes.
+
 ## Analyze ECG and History
 
 * **Input**: CSV or TXT (one column of samples, or time and value columns),
