@@ -12,7 +12,7 @@ trained model in [`../ml`](../ml).
 | | Demo mode | Real mode |
 |---|-----------|-----------|
 | Accounts | Seeded demo clinician and demo patient | Anyone registers as a patient |
-| Data | Simulated patients, devices, alerts and a replayed ECG stream, plus two seeded analyses | Empty until you upload your own ECG |
+| Data | Simulated patients, devices and alerts, a live ECG replay from the ML service (or a simulated feed), plus two seeded analyses | Empty until you upload your own ECG |
 | Use | Project demo | Upload a file, get it analysed, keep a history |
 
 Both modes run in the same build. The sign-in and register pages have a
@@ -45,7 +45,7 @@ npm install
 npm run dev          # http://localhost:3000
 ```
 
-Copy `.env.example` to `.env.local` if you need to change the ML service URL.
+Copy `.env.example` to `.env.local` if you need to change the ML service URL or the live feed mode.
 
 ### Running the ML service next to the frontend
 
@@ -78,6 +78,97 @@ and is not saved to history.
 
 Check the service with `curl http://localhost:8000/health`.
 
+## Live monitor
+
+The Live monitor page (`/dashboard`) shows a scrolling ECG trace for one
+patient, with a coloured and lettered marker (N, S, V, F, Q) on every beat the
+model detects, the heart rate, the rhythm, a signal quality indicator, a live
+alert feed and a connection badge. Controls: play and pause, replay speed
+(1x, 2x, 5x) and, for a clinician, a record picker.
+
+The data comes from a stand-in for the device, MQTT, edge and backend: the ML
+service replays a MIT-BIH record in real time (see "Live replay" in
+`../ml/README.md`). The ML service only offers records from the held-out test
+patients.
+
+| Badge | Meaning |
+|-------|---------|
+| Live replay | Streaming from the ML service |
+| Simulated feed | The ML service is not running; a synthetic ECG made in the browser is shown, and the page says so |
+| Reconnecting | The stream was interrupted; retrying with backoff |
+| ML service not running | Only in `replay` mode: there is no fallback, and the page keeps retrying |
+| Paused | The connection is closed; play resumes from the same position |
+
+**Roles.** The demo patient sees only their own device's stream (`P-0042`,
+`ESP32-01`, record 233). The demo clinician sees a patient list with each
+patient's latest heart rate and status, each mapped to a different record, and
+can open any of them. A patient whose device is offline in the mock data has no
+stream.
+
+**Alerts.** Alerts the live feed raises are added, for the session, to the
+Alerts page and the recent alerts on the monitor, marked "Live replay" (or
+"Simulated"). A pattern that repeats for the same patient within a minute is
+shown once, so a long episode does not fill the list.
+
+**Resilience.** The page reconnects automatically with exponential backoff and
+resumes from the last position, drops a stream that goes silent, closes the
+connection when you leave the page, and keeps only the latest 12 seconds of
+samples in a fixed-size buffer.
+
+### Running the monitor with the ML service
+
+```
+# terminal 1, from the repository root
+cd ml
+pip install -r requirements.txt
+uvicorn api:app --port 8000
+
+# terminal 2
+cd frontend
+npm run dev
+```
+
+Sign in with a demo account and open Live monitor. The browser never calls the
+ML service: it opens `/api/live/{record}`, a Next.js route that streams from
+`ML_API_URL`, so the ML service needs no CORS setup.
+
+`NEXT_PUBLIC_LIVE_FEED` (read in the browser, set at build time) chooses the
+source:
+
+```
+NEXT_PUBLIC_LIVE_FEED=auto     # default: replay, simulated feed if the service is down
+NEXT_PUBLIC_LIVE_FEED=replay   # replay only, with an "ML service not running" state
+NEXT_PUBLIC_LIVE_FEED=mock     # always the simulated feed
+```
+
+### Event format
+
+Every feed delivers the same four event types, typed in `src/lib/live/types.ts`
+and parsed in `src/lib/live/parse.ts`:
+
+| Event | Fields |
+|-------|--------|
+| `samples` | `t`, `recordT`, `fs`, `values`: a block of signal samples |
+| `beats` | list of `{t, cls, confidence, groundTruth?}` |
+| `alert` | `id`, `alertType`, `severity` (high, medium, low), `confidence`, `message`, `t` |
+| `status` | `state`, `heartRate`, `rhythm`, `quality`, `loop` |
+
+`groundTruth` is the annotated class, shown only so the demo can mark where the
+model and the annotation differ ("V (ref S)"); it is never the prediction.
+
+### Which parts a real backend replaces
+
+| Part | Here | With a real backend |
+|------|------|---------------------|
+| Device, MQTT, edge | ML service replaying a record | The device publishes ECG; the edge and backend run the model |
+| Feed | `createLiveFeed()` in `src/lib/live/index.ts` returns the replay feed (or the simulated one) | Return a feed that implements `LiveFeed` over the backend's stream |
+| Streaming route | `/api/live/[record]`, a proxy to the ML service | Proxy the backend, or let the feed talk to it directly |
+| Device to patient mapping | `src/lib/live/config.ts` maps devices and patients to records | The real pairing |
+| Live alerts | Session store in `src/lib/data/live-alerts.ts` | The backend's alert API behind the same functions in `src/lib/data` |
+
+No page imports the replay or simulated implementations: they use `LiveFeed`
+through `useLiveMonitor` and `useRoster`, so none of them change.
+
 ## Analyze ECG and History
 
 * **Input**: CSV or TXT (one column of samples, or time and value columns),
@@ -104,8 +195,11 @@ The result schema is documented in `../ml/README.md` and parsed in
 src/lib/auth        AuthService interface, local stand-in, demo accounts, role rules
 src/lib/data        data access: role scoped getters and the per-user history
 src/lib/analysis    result schema, parsing, upload checks, API client, summaries
+src/lib/live        LiveFeed interface, replay and simulated feeds, buffer, state, record mapping
+src/lib/hooks       useLiveMonitor, useRoster, live alert subscriptions
 src/app/api/analyze route handler that proxies uploads to the ML service
-src/components      auth, shell, analyze, results, history, dashboard, ui primitives
+src/app/api/live    streaming route handlers that proxy the replay to the browser
+src/components      auth, shell, analyze, results, history, live, dashboard, ui primitives
 ```
 
 **Accounts are a local stand-in.** `src/lib/auth` defines one interface
@@ -126,7 +220,7 @@ it and the history shows the beat timeline.
 ```
 npm run lint
 npm run typecheck
-npm test            # auth layer, result parsing, upload checks, proxy, history
+npm test            # auth layer, result parsing, upload checks, proxies, history, live feeds
 npm run verify      # all three
 npm run build
 ```
