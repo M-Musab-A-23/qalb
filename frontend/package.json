@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:heart": "vitest run src/lib/heart",
     "verify": "npm run lint && npm run typecheck && npm test"
   },
   "dependencies": {
