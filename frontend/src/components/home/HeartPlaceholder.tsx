@@ -55,7 +55,11 @@ export function HeartPlaceholder({
         />
         <motion.g
           style={{ transformOrigin: "280px 290px" }}
-          animate={reduceMotion || !animate ? undefined : { scale: [1, 1.035, 1, 1.02, 1] }}
+          animate={
+            reduceMotion || !animate
+              ? undefined
+              : { scale: [1, 1.035, 1, 1.02, 1] }
+          }
           transition={{
             duration: 1.6,
             repeat: Infinity,
