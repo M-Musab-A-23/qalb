@@ -6,6 +6,7 @@ export { createHeartRateTrend, mockHeartRateTrend } from "./heart-rate-trend";
 export { mockPatients } from "./patients";
 export type {
   AlertItem,
+  AlertSource,
   AlertStats,
   BrokerStatus,
   Device,

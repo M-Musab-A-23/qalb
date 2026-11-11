@@ -40,6 +40,9 @@ export type AlertStats = {
   acknowledgedToday: number;
 };
 
+/** Where an alert came from. Seeded demo alerts have no source. */
+export type AlertSource = "live-replay" | "simulated";
+
 export type AlertItem = {
   id: string;
   severity: Status;
@@ -52,6 +55,8 @@ export type AlertItem = {
   /** Local time of day, HH:MM:SS. */
   time: string;
   acknowledged: boolean;
+  /** Set on alerts raised by a live feed during this session. */
+  source?: AlertSource;
 };
 
 export type TrendPoint = {
