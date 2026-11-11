@@ -3,11 +3,18 @@
 import { motion, useReducedMotion } from "motion/react";
 
 /**
- * Placeholder for the hero visual. It is a flat, lightly animated heart so the
- * layout is final. To use the 3D heart later, replace the body of this
- * component with the 3D scene and keep the same props and size.
+ * The flat illustration of the heart. It is what first paints, what shows
+ * while the 3D heart loads, and what stays when the 3D heart cannot run
+ * (no WebGL, reduced data, or a failure).
  */
-export function HeroHeart({ className }: { className?: string }) {
+export function HeartPlaceholder({
+  className,
+  animate = true,
+}: {
+  className?: string;
+  /** Set to false to stop the pulse once it is hidden behind the 3D heart. */
+  animate?: boolean;
+}) {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -48,7 +55,7 @@ export function HeroHeart({ className }: { className?: string }) {
         />
         <motion.g
           style={{ transformOrigin: "280px 290px" }}
-          animate={reduceMotion ? undefined : { scale: [1, 1.035, 1, 1.02, 1] }}
+          animate={reduceMotion || !animate ? undefined : { scale: [1, 1.035, 1, 1.02, 1] }}
           transition={{
             duration: 1.6,
             repeat: Infinity,
