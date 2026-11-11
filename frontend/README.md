@@ -231,6 +231,33 @@ nothing moves while the scene loads. The choice is `decideHeartMode` in
 | `prefers-reduced-motion: reduce` | Still 3D heart |
 | Anything else | Animated 3D heart |
 
+### Performance
+
+* The scene is a dynamic import with `ssr: false`, requested only when the
+  heart can run, so three.js is not part of the first load of the page.
+* Rendering stops (`frameloop="never"`) while the hero is off screen or the tab
+  is hidden, and resumes when it is visible again.
+* The pixel ratio is capped at 2, the canvas is transparent so the glass
+  backdrop shows through, and there is no post-processing.
+* Four draw calls: the heart, its glow and two rings. The heart is about 7,000
+  vertices, built once. Lighting uses two directional lights and a small
+  environment generated from light panels, drawn once per theme.
+
+**Bundle size.** Measured with `npm run build` (sum of the JS files in
+`.next/static/chunks`):
+
+| | Raw | Gzip |
+|---|-----|------|
+| All JS before the heart | 1.0 MB | 324 KB |
+| All JS with the heart | 2.0 MB | 596 KB |
+| Scene chunk (three.js, fiber, drei, scene code), loaded on demand | 0.98 MB | 263 KB |
+| JS the home page loads up front | 739 KB | 232 KB |
+
+The increase is almost entirely the on-demand scene chunk. Visitors with
+reduced data, no WebGL or an old browser never download it. Pages other than
+the home page do not load it. The numbers move with dependency upgrades, so
+re-measure after changing versions.
+
 ## Analyze ECG and History
 
 * **Input**: CSV or TXT (one column of samples, or time and value columns),
