@@ -63,7 +63,7 @@ export type HeartGeometryOptions = {
 export function createHeartGeometry(
   options: HeartGeometryOptions = {},
 ): BufferGeometry {
-  const { segments = 96, rings = 72, size = 2 } = options;
+  const { segments = 96, rings = 72, size = 2.3 } = options;
   const origin: [number, number, number] = [0, 0, 0.15];
   const positions: number[] = [];
   const indices: number[] = [];

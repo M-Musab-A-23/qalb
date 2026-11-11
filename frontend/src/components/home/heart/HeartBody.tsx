@@ -38,7 +38,7 @@ export function HeartBody({ palette, beat }: Props) {
       mesh?.scale.setScalar(scale);
     }
     if (surface.current) {
-      surface.current.emissiveIntensity = 0.1 + 0.45 * envelope;
+      surface.current.emissiveIntensity = 0.16 + 0.45 * envelope;
     }
     if (glow.current) {
       const base = palette.dark ? 0.55 : 0.35;
@@ -54,7 +54,7 @@ export function HeartBody({ palette, beat }: Props) {
           ref={surface}
           color={palette.heart}
           emissive={palette.highlight}
-          emissiveIntensity={0.1}
+          emissiveIntensity={0.16}
           roughness={0.3}
           metalness={0}
           clearcoat={1}
