@@ -2,6 +2,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { cn } from "@/lib/cn";
 import type { Device } from "@/lib/data";
 import { formatMessageAge } from "@/lib/format";
+import { assignmentForDevice } from "@/lib/live/config";
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -17,6 +18,7 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export function DeviceCard({ device }: { device: Device }) {
+  const replay = assignmentForDevice(device.id);
   return (
     <GlassCard lift className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
@@ -40,6 +42,9 @@ export function DeviceCard({ device }: { device: Device }) {
         <Row label="Patient" value={device.patientId} />
         <Row label="MQTT topic" value={device.mqttTopic} />
         <Row label="Sample rate" value={`${device.sampleRate} Hz`} />
+        {replay ? (
+          <Row label="Live replay" value={`MIT-BIH ${replay.record}`} />
+        ) : null}
         <Row
           label="Last message"
           value={formatMessageAge(device.lastMessageSeconds)}
