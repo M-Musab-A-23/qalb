@@ -27,6 +27,7 @@ TICK_S = 0.25            # wall-clock seconds between sample events
 ANALYSIS_S = 2.0         # wall-clock seconds between model runs
 WINDOW_S = 10.0          # length of the window the model sees
 MIN_WINDOW_S = 4.0       # no analysis until this much signal exists
+OVERLAP_S = 1.0          # extra signal so a beat at a window edge is seen by the next one
 WIRE_FS = 120            # sampling rate of the samples sent to the client
 SPEEDS = (1, 2, 5)
 
@@ -112,6 +113,11 @@ class ReplaySession:
     @property
     def step_samples(self) -> int:
         return int(round(TICK_S * self.speed * self.fs))
+
+    @property
+    def window_samples(self) -> int:
+        """Latest 10 s; longer at 5x, where consecutive windows would otherwise not overlap."""
+        return int(max(WINDOW_S, ANALYSIS_S * self.speed + OVERLAP_S) * self.fs)
 
     @property
     def analysis_every(self) -> int:
@@ -205,7 +211,7 @@ class ReplaySession:
 
     def _analyse_window(self) -> list[dict]:
         w1 = self.pos
-        w0 = max(0, w1 - int(WINDOW_S * self.fs))
+        w0 = max(0, w1 - self.window_samples)
         if w1 - w0 < int(MIN_WINDOW_S * self.fs):
             return [self.status("streaming")]
         try:
@@ -244,9 +250,7 @@ def model_ready() -> bool:
 
 def encode_event(event: dict) -> str:
     """One Server-Sent Events message; the type lives inside the JSON."""
-    return f"data: {json.dumps(event, separators=(',', ':'))}
-
-"
+    return f"data: {json.dumps(event, separators=(',', ':'))}\n\n"
 
 
 async def _no_wait(_seconds: float) -> None:
