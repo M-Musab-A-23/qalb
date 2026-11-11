@@ -46,3 +46,28 @@ export function describeConnection(
       return { label: "Not connected", status: null, hint: null };
   }
 }
+
+/** The one-line note under the trace, which must say plainly when the data is simulated. */
+export function traceNote(
+  kind: FeedConnection["kind"],
+  record: string,
+  agreement: { agreed: number; compared: number },
+): string {
+  if (kind === "mock") {
+    return "Simulated ECG made in the browser because the ML service is not running. It is not a recording and not a model result.";
+  }
+  const base = `Replay of MIT-BIH record ${record}, a held-out test patient. A marker shows the model's class; "(ref X)" means the annotation says X.`;
+  return agreement.compared > 0
+    ? `${base} The model matches the annotation on ${agreement.agreed} of ${agreement.compared} beats.`
+    : base;
+}
+
+/** The subtitle under the page title. */
+export function sourceSubtitle(
+  kind: FeedConnection["kind"],
+  record: string,
+): string {
+  return kind === "mock"
+    ? "simulated ECG"
+    : `replay of MIT-BIH record ${record}`;
+}

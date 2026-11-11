@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { describeConnection } from "./labels";
+import { describeConnection, sourceSubtitle, traceNote } from "./labels";
 import type { FeedConnection } from "./types";
 
 const base: FeedConnection = { state: "live", kind: "replay", attempt: 0, message: null };
@@ -36,5 +36,32 @@ describe("describeConnection", () => {
   it("shows a neutral state before connecting", () => {
     expect(describeConnection({ ...base, state: "idle" }, false)).toMatchObject({ label: "Not connected", status: null });
     expect(describeConnection({ ...base, state: "connecting" }, false).label).toBe("Connecting");
+  });
+});
+
+describe("traceNote", () => {
+  it("describes a replay and the match with the annotations", () => {
+    const note = traceNote("replay", "233", { agreed: 29, compared: 31 });
+    expect(note).toContain("record 233");
+    expect(note).toContain("29 of 31");
+  });
+
+  it("leaves out the match before any beat has been compared", () => {
+    expect(traceNote("replay", "233", { agreed: 0, compared: 0 })).not.toContain("matches");
+  });
+
+  it("says plainly that simulated data is not a recording or a model result", () => {
+    const note = traceNote("mock", "233", { agreed: 3, compared: 3 });
+    expect(note).toContain("Simulated");
+    expect(note).toContain("not a recording");
+    expect(note).not.toContain("held-out");
+    expect(note).not.toContain("matches");
+  });
+});
+
+describe("sourceSubtitle", () => {
+  it("names the record or the simulation", () => {
+    expect(sourceSubtitle("replay", "233")).toBe("replay of MIT-BIH record 233");
+    expect(sourceSubtitle("mock", "233")).toBe("simulated ECG");
   });
 });
