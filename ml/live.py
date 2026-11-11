@@ -35,7 +35,7 @@ SPEEDS = (1, 2, 5)
 DEMO_RECORDS: dict[str, str] = {
     "100": "Normal sinus rhythm, rare atrial premature beats",
     "123": "Normal sinus rhythm, rare ventricular beats",
-    "105": "Noisy signal with frequent ventricular beats",
+    "105": "Noisy signal with occasional ventricular beats",
     "200": "Frequent ventricular beats, bigeminy and runs",
     "221": "Irregular rhythm with ventricular beats",
     "233": "Frequent ventricular beats and couplets",
