@@ -7,13 +7,18 @@ import { HomeNav } from "./HomeNav";
 import { HowItWorks } from "./HowItWorks";
 import { LiveMonitoringSection } from "./LiveMonitoringSection";
 
-export function HomePage() {
+type Props = {
+  /** Heart rate for the hero heart, for example from a live feed. */
+  bpm?: number;
+};
+
+export function HomePage({ bpm }: Props) {
   return (
     <div className="relative">
       <MeshBackground />
       <div className="mx-auto w-full max-w-[1440px] px-4 pt-7 sm:px-8 lg:px-[136px]">
         <HomeNav />
-        <HeroSection />
+        <HeroSection bpm={bpm} />
         <HowItWorks />
         <LiveMonitoringSection />
         <FeaturesSection />
