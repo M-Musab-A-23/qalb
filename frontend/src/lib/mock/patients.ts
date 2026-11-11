@@ -3,7 +3,7 @@ import type { Patient } from "./types";
 export const mockPatients: Patient[] = [
   {
     id: "P-0042",
-    record: "MIT-BIH record 100",
+    record: "MIT-BIH record 233",
     status: "critical",
     heartRate: 156,
     deviceId: "ESP32-01",
@@ -12,7 +12,7 @@ export const mockPatients: Patient[] = [
   },
   {
     id: "P-0017",
-    record: "MIT-BIH record 101",
+    record: "MIT-BIH record 200",
     status: "warning",
     heartRate: 118,
     deviceId: "ESP32-02",
@@ -21,7 +21,7 @@ export const mockPatients: Patient[] = [
   },
   {
     id: "P-0023",
-    record: "MIT-BIH record 102",
+    record: "MIT-BIH record 123",
     status: "normal",
     heartRate: 72,
     deviceId: "ESP32-03",
@@ -30,7 +30,7 @@ export const mockPatients: Patient[] = [
   },
   {
     id: "P-0031",
-    record: "MIT-BIH record 103",
+    record: "MIT-BIH record 100",
     status: "normal",
     heartRate: 68,
     deviceId: "ESP32-04",
@@ -39,7 +39,7 @@ export const mockPatients: Patient[] = [
   },
   {
     id: "P-0058",
-    record: "MIT-BIH record 104",
+    record: "MIT-BIH record 221",
     status: "warning",
     heartRate: 112,
     deviceId: "ESP32-05",
