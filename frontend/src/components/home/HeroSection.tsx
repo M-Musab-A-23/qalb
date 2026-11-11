@@ -76,7 +76,7 @@ export function HeroSection({ bpm = DEFAULT_BPM }: Props) {
         <VitalsTile
           glass
           label="Heart rate"
-          value={bpm}
+          value={Math.round(bpm)}
           unit="BPM"
           className="absolute bottom-6 left-0 w-[240px] max-sm:hidden"
         />
