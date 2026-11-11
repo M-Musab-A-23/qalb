@@ -42,7 +42,7 @@ export function RecentAlertsPanel({
             key={alert.id}
             severity={alert.severity}
             title={alert.title}
-            detail={`${alert.patientId} · ${alert.detail.toLowerCase()}`}
+            detail={`${alert.patientId} · ${alert.detail.toLowerCase()}${alert.source ? ` · ${SOURCE_LABELS[alert.source]}` : ""}`}
             time={alert.time}
           />
         ))}
