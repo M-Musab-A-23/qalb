@@ -1,4 +1,4 @@
-import { Color, ShaderMaterial } from "three";
+import { Color, type ShaderMaterialParameters } from "three";
 
 const vertex = /* glsl */ `
   varying float vAlong;
@@ -24,8 +24,9 @@ const fragment = /* glsl */ `
   }
 `;
 
-export function createRingMaterial(color: Color): ShaderMaterial {
-  return new ShaderMaterial({
+/** Parameters for a `shaderMaterial`, so React owns the material. */
+export function ringParameters(color: Color): ShaderMaterialParameters {
+  return {
     vertexShader: vertex,
     fragmentShader: fragment,
     uniforms: {
@@ -35,5 +36,5 @@ export function createRingMaterial(color: Color): ShaderMaterial {
     },
     transparent: true,
     depthWrite: false,
-  });
+  };
 }

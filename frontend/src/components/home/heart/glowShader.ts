@@ -1,4 +1,4 @@
-import { AdditiveBlending, Color, ShaderMaterial } from "three";
+import { AdditiveBlending, Color, type ShaderMaterialParameters } from "three";
 
 const vertex = /* glsl */ `
   varying vec3 vNormal;
@@ -29,8 +29,9 @@ const fragment = /* glsl */ `
   }
 `;
 
-export function createGlowMaterial(color: Color): ShaderMaterial {
-  return new ShaderMaterial({
+/** Parameters for a `shaderMaterial`, so React owns the material. */
+export function glowParameters(color: Color): ShaderMaterialParameters {
+  return {
     vertexShader: vertex,
     fragmentShader: fragment,
     uniforms: {
@@ -40,5 +41,5 @@ export function createGlowMaterial(color: Color): ShaderMaterial {
     transparent: true,
     depthWrite: false,
     blending: AdditiveBlending,
-  });
+  };
 }
