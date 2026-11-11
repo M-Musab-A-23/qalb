@@ -26,7 +26,7 @@ import {
   DEFAULT_SPEED,
   replayAssignments,
 } from "@/lib/live/config";
-import { describeConnection } from "@/lib/live/labels";
+import { describeConnection, sourceSubtitle, traceNote } from "@/lib/live/labels";
 import { deriveStatus } from "@/lib/live/state";
 import type { FeedKind, LiveAlert, LiveSpeed } from "@/lib/live/types";
 import { ConnectionBadge } from "./ConnectionBadge";
@@ -159,11 +159,6 @@ function Monitor({ user }: { user: NonNullable<ReturnType<typeof useAuth>["user"
     };
   });
 
-  const agreement =
-    state.compared > 0
-      ? ` The model matches the annotation on ${state.agreed} of ${state.compared} beats.`
-      : "";
-
   return (
     <>
       <TopBar
@@ -171,8 +166,8 @@ function Monitor({ user }: { user: NonNullable<ReturnType<typeof useAuth>["user"
         title="Live monitoring"
         subtitle={
           isClinician
-            ? `Patient ${activeId} · replay of MIT-BIH record ${record}`
-            : `Your device ${deviceId} · replay of MIT-BIH record ${record}`
+            ? `Patient ${activeId} · ${sourceSubtitle(connection.kind, record)}`
+            : `Your device ${deviceId} · ${sourceSubtitle(connection.kind, record)}`
         }
         actions={
           <>
@@ -201,7 +196,7 @@ function Monitor({ user }: { user: NonNullable<ReturnType<typeof useAuth>["user"
         onRecord={(next) => activeId && setOverride({ patientId: activeId, record: next })}
         recordPicker={isClinician}
       />
-      {hint && connection.state !== "live" ? (
+      {hint && (connection.state !== "live" || connection.kind === "mock") ? (
         <p role="status" className="text-sm leading-5 text-[var(--color-text-secondary)]">
           {hint}
         </p>
@@ -213,7 +208,7 @@ function Monitor({ user }: { user: NonNullable<ReturnType<typeof useAuth>["user"
           title="ECG · Lead II"
           badge={<ConnectionBadge connection={connection} paused={paused} />}
           counts={state.counts}
-          note={`Replay of MIT-BIH record ${record}, a held-out test patient. A marker shows the model's class; "(ref X)" means the annotation says X.${agreement}`}
+          note={traceNote(connection.kind, record, state)}
         />
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 xl:grid-cols-1">
           <LiveHeartRate heartRate={state.heartRate} />
