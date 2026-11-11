@@ -116,3 +116,39 @@ class ReplaySession:
 
     def _wire_index(self, sample: int) -> int:
         return int(round(sample * self.wire_fs / self.fs))
+
+    # -- events -----------------------------------------------------------
+    def status(self, state: str, **extra) -> dict:
+        return {"type": "status", "state": state, "record": self.record, "speed": self.speed,
+                "t": self.stream_t(self.pos), "record_t": round(self.pos / self.fs, 3),
+                "loop": self.loop, "hr_bpm": None, "rhythm": None, "quality": None, **extra}
+
+    def _samples_event(self, start: int, end: int) -> dict:
+        values = self.wire[self._wire_index(start):self._wire_index(end)]
+        event = {"type": "samples", "seq": self.seq, "t": self.stream_t(start),
+                 "record_t": round(start / self.fs, 3), "fs": self.wire_fs,
+                 "values": [round(float(v), 3) for v in values]}
+        self.seq += 1
+        return event
+
+    def tick(self) -> list[dict]:
+        """Advance one step and return the events it produced, in order."""
+        events: list[dict] = []
+        if self.ticks == 0:
+            events.append(self.status("started"))
+        start = self.pos
+        end = min(start + self.step_samples, self.total)
+        if self.send_samples:
+            events.append(self._samples_event(start, end))
+        self.pos = end
+        self.ticks += 1
+        if self.ticks % self.analysis_every == 0:
+            events.extend(self._analyse_window())
+        if self.pos >= self.total:
+            self.loop += 1
+            self.origin -= self.total
+            self.pos = 0
+            self._last_beat = -10 ** 12
+            self._episode_end.clear()
+            events.append(self.status("loop"))
+        return events
