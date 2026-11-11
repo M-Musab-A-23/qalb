@@ -215,6 +215,22 @@ current rate to `HomePage`.
 * **Reduced motion**: the heart is drawn still, with no beat, rotation or
   parallax, and only redraws when the theme or size changes.
 
+### What shows when
+
+The flat illustration (`HeartPlaceholder`) fills the space from the first
+paint, on the server and during hydration, and stays until the 3D heart has
+drawn its first frame, then they cross-fade. The box has a fixed square size, so
+nothing moves while the scene loads. The choice is `decideHeartMode` in
+`src/lib/heart/mode.ts`:
+
+| Situation | Result |
+|-----------|--------|
+| WebGL not checked yet, or not available | Illustration |
+| Save-Data is on, or `prefers-reduced-data: reduce` | Illustration, and the 3D code is never downloaded |
+| The WebGL context is lost, or the scene throws | Illustration (an error boundary keeps the page up) |
+| `prefers-reduced-motion: reduce` | Still 3D heart |
+| Anything else | Animated 3D heart |
+
 ## Analyze ECG and History
 
 * **Input**: CSV or TXT (one column of samples, or time and value columns),
