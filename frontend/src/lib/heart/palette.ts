@@ -5,12 +5,15 @@ export const HEART_TOKENS = {
   heart: "--color-brand-fill",
   highlight: "--color-brand-fill-hover",
   signal: "--color-signal-line",
+  key: "--neutral-0",
 } as const;
 
 export type HeartPalette = {
   heart: Color;
   highlight: Color;
   signal: Color;
+  /** Neutral light colour for the key light and reflections. */
+  key: Color;
   /** Dark themes need a stronger glow to read against the page. */
   dark: boolean;
 };
@@ -19,6 +22,7 @@ const FALLBACK = {
   heart: "#d12a45",
   highlight: "#e8405a",
   signal: "#22d3ee",
+  key: "#ffffff",
 } as const;
 
 const COLOR_SYNTAX = /^(#[0-9a-f]{3,8}|(rgb|hsl)a?\([^)]*\))$/i;
@@ -45,6 +49,7 @@ export function readHeartPalette(
     heart: read(HEART_TOKENS.heart, FALLBACK.heart),
     highlight: read(HEART_TOKENS.highlight, FALLBACK.highlight),
     signal: read(HEART_TOKENS.signal, FALLBACK.signal),
+    key: read(HEART_TOKENS.key, FALLBACK.key),
     dark,
   };
 }
