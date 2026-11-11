@@ -10,6 +10,8 @@ was trained on.
 """
 from __future__ import annotations
 
+from typing import Callable
+
 import numpy as np
 from scipy.signal import resample_poly
 
@@ -51,3 +53,66 @@ def to_wire(signal: np.ndarray, fs: int = FS, wire_fs: int = WIRE_FS) -> np.ndar
         return np.asarray(signal, dtype=float)
     g = int(np.gcd(int(fs), int(wire_fs)))
     return resample_poly(np.asarray(signal, dtype=float), wire_fs // g, int(fs) // g)
+
+
+def default_analyse(window: np.ndarray, fs: float) -> dict:
+    """Run the packaged model on one window (imported late so the module loads without it)."""
+    from predict import predict_window
+    return predict_window(window, fs)
+
+
+class ReplaySession:
+    """One viewer's walk through a record.
+
+    The session has no clock of its own: ``tick()`` advances it by one 250 ms
+    step (``0.25 * speed`` seconds of signal) and returns the events for that
+    step. The HTTP layer decides when to call it, so tests run without sleeping.
+    """
+
+    REFRACTORY_S = 0.15      # a beat this close to an already sent one is the same beat
+    TRUTH_TOLERANCE_S = 0.1  # annotation must be this close to a detected beat
+    ALERT_GAP_S = 1.0        # alerts of one type closer than this are one episode
+
+    def __init__(self, record: str, signal, fs: int, peaks, labels, *, speed: int = 1,
+                 offset_s: float = 0.0, analyse: Callable[[np.ndarray, float], dict] | None = None,
+                 samples: bool = True, truth: bool = True, wire_fs: int = WIRE_FS):
+        if speed not in SPEEDS:
+            raise ValueError(f"speed must be one of {SPEEDS}")
+        if offset_s < 0:
+            raise ValueError("offset must not be negative")
+        self.record = record
+        self.signal = np.asarray(signal, dtype=float)
+        self.fs = int(fs)
+        self.peaks = np.asarray(peaks, dtype=int)
+        self.labels = np.asarray(labels)
+        self.speed = speed
+        self.send_samples = samples
+        self.truth = truth
+        self.analyse = analyse or default_analyse
+        self.wire_fs = wire_fs
+        self.wire = to_wire(self.signal, self.fs, wire_fs)
+        self.total = len(self.signal)
+        if self.total < int(MIN_WINDOW_S * self.fs):
+            raise ValueError("record is too short to replay")
+        self.pos = int(offset_s * self.fs) % self.total
+        self.origin = self.pos          # stream time is (record sample - origin) / fs
+        self.loop = 0
+        self.ticks = 0
+        self.seq = 0
+        self._last_beat = -10 ** 12
+        self._episode_end: dict[str, int] = {}
+
+    # -- time helpers -----------------------------------------------------
+    @property
+    def step_samples(self) -> int:
+        return int(round(TICK_S * self.speed * self.fs))
+
+    @property
+    def analysis_every(self) -> int:
+        return max(1, int(round(ANALYSIS_S / TICK_S)))
+
+    def stream_t(self, sample: int) -> float:
+        return round((sample - self.origin) / self.fs, 3)
+
+    def _wire_index(self, sample: int) -> int:
+        return int(round(sample * self.wire_fs / self.fs))
