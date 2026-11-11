@@ -1,7 +1,5 @@
 import { forwardLiveStream } from "@/lib/live/proxy";
 
-export const dynamic = "force-dynamic";
-
 /** Streams a replay (Server-Sent Events) from the ML service at ML_API_URL. */
 export async function GET(
   request: Request,
