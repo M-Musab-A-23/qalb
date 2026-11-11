@@ -169,6 +169,22 @@ model and the annotation differ ("V (ref S)"); it is never the prediction.
 No page imports the replay or simulated implementations: they use `LiveFeed`
 through `useLiveMonitor` and `useRoster`, so none of them change.
 
+## Hero heart
+
+The home page shows a 3D heart in the hero. It is built in code (no model or
+image files): a smooth surface from an implicit heart equation, a glossy
+crimson material with a soft inner glow, and two thin cyan rings with a pulse
+line that travels round them, echoing the logo. All colours are read from the
+design tokens (`--color-brand-fill`, `--color-brand-fill-hover`,
+`--color-signal-line` and `--neutral-0`) and are read again when the theme is
+toggled, so it follows light and dark.
+
+```
+src/lib/heart                  bpm, pulse timing, fallback decision, palette, geometry (all tested)
+src/components/home/HeroHeart  the component the page uses
+src/components/home/heart      the 3D scene, loaded on demand
+```
+
 ## Analyze ECG and History
 
 * **Input**: CSV or TXT (one column of samples, or time and value columns),
