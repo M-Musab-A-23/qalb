@@ -27,7 +27,6 @@ import {
   replayAssignments,
 } from "@/lib/live/config";
 import { describeConnection, sourceSubtitle, traceNote } from "@/lib/live/labels";
-import { deriveStatus } from "@/lib/live/state";
 import type { FeedKind, LiveAlert, LiveSpeed } from "@/lib/live/types";
 import { ConnectionBadge } from "./ConnectionBadge";
 import { LiveHeartRate } from "./LiveHeartRate";
@@ -134,7 +133,6 @@ function Monitor({ user }: { user: NonNullable<ReturnType<typeof useAuth>["user"
   }
 
   const { state, connection, trace } = monitor;
-  const status = deriveStatus(state);
   const connected = connection.state === "live" && !paused;
   const { hint } = describeConnection(connection, paused);
 
@@ -212,7 +210,7 @@ function Monitor({ user }: { user: NonNullable<ReturnType<typeof useAuth>["user"
         />
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 xl:grid-cols-1">
           <LiveHeartRate heartRate={state.heartRate} />
-          <RhythmChip rhythm={state.rhythm} status={status} />
+          <RhythmChip rhythm={state.rhythm} />
           <SignalQuality quality={state.quality} />
         </div>
       </div>
