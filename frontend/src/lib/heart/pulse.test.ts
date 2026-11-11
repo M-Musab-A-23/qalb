@@ -60,6 +60,28 @@ describe("beatEnvelope", () => {
   });
 });
 
+describe("beat pattern", () => {
+  it("finishes before the next beat starts", () => {
+    for (const c of BEAT_PATTERN) {
+      expect(c.start + c.attack + c.release).toBeLessThan(1);
+    }
+  });
+
+  it("does not overlap the two contractions", () => {
+    const [first, second] = BEAT_PATTERN;
+    expect(first.start + first.attack + first.release).toBeLessThanOrEqual(
+      second.start,
+    );
+  });
+
+  it("keeps the same rhythm at any rate, only faster or slower", () => {
+    // One beat at 60 and at 120 bpm sample the same envelope over phase.
+    const slow = [0, 0.1, 0.35, 0.8].map((p) => beatEnvelope(p));
+    const fast = [0, 0.1, 0.35, 0.8].map((p) => beatEnvelope(p + 3));
+    expect(fast).toEqual(slow);
+  });
+});
+
 describe("beatScale", () => {
   it("is 1 at rest and smaller at the peak", () => {
     expect(beatScale(0.8)).toBe(1);
