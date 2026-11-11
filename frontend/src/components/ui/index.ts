@@ -7,3 +7,4 @@ export { NavItem, type NavItemProps } from "./NavItem";
 export { StatusBadge, type StatusBadgeProps } from "./StatusBadge";
 export { VitalsTile, type VitalsTileProps } from "./VitalsTile";
 export { Checkbox, type CheckboxProps } from "./Checkbox";
+export { Select, type SelectOption, type SelectProps } from "./Select";
