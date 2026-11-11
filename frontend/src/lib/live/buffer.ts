@@ -13,6 +13,7 @@ export type TraceBeat = {
  */
 export class RollingTrace {
   private values: Float32Array;
+  private rate: number;
   private head = 0;
   private count = 0;
   /** Stream time of the newest sample. */
@@ -21,10 +22,24 @@ export class RollingTrace {
 
   constructor(
     readonly seconds: number,
-    readonly fs: number,
+    fs: number,
     private readonly maxBeats = 256,
   ) {
+    this.rate = fs;
     this.values = new Float32Array(Math.ceil(seconds * fs));
+  }
+
+  /** Sampling rate of the stored samples, in Hz. */
+  get fs(): number {
+    return this.rate;
+  }
+
+  /** Switches to another sampling rate (this empties the trace). */
+  setRate(fs: number): void {
+    if (fs === this.rate) return;
+    this.rate = fs;
+    this.values = new Float32Array(Math.ceil(this.seconds * fs));
+    this.reset();
   }
 
   get capacity(): number {

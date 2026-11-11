@@ -67,6 +67,19 @@ describe("RollingTrace", () => {
     expect(trace.beats).toHaveLength(5);
   });
 
+  it("changes the sampling rate by starting over at the new size", () => {
+    const trace = new RollingTrace(2, 10);
+    trace.pushSamples(0, [1, 2, 3]);
+    trace.setRate(250);
+    expect(trace.fs).toBe(250);
+    expect(trace.capacity).toBe(500);
+    expect(trace.length).toBe(0);
+    trace.setRate(250);
+    trace.pushSamples(0, [1, 2]);
+    trace.setRate(250);
+    expect(trace.length).toBe(2);
+  });
+
   it("reset empties the trace", () => {
     const trace = new RollingTrace(2, 10);
     trace.pushSamples(0, [1, 2]);
