@@ -309,7 +309,8 @@ it and the history shows the beat timeline.
 ```
 npm run lint
 npm run typecheck
-npm test            # auth layer, result parsing, upload checks, proxies, history, live feeds
+npm test            # auth layer, result parsing, upload checks, proxies, history, live feeds, hero heart
+npm run test:heart  # only the hero heart: pulse timing, fallback decision, palette, geometry
 npm run verify      # all three
 npm run build
 ```
