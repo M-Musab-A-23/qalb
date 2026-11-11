@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DeviceChip } from "@/components/ui/DeviceChip";
 import { VitalsTile } from "@/components/ui/VitalsTile";
 import { cn } from "@/lib/cn";
+import { DEFAULT_BPM } from "@/lib/heart/bpm";
 import { HeroHeart } from "./HeroHeart";
 
 const stats = [
@@ -13,7 +14,12 @@ const stats = [
 const buttonBase =
   "inline-flex items-center justify-center rounded-[var(--radius-md)] px-6 py-3 text-sm leading-5 font-medium whitespace-nowrap transition-colors outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]";
 
-export function HeroSection() {
+type Props = {
+  /** Heart rate shown and followed by the heart. Defaults to 72. */
+  bpm?: number;
+};
+
+export function HeroSection({ bpm = DEFAULT_BPM }: Props) {
   return (
     <section className="relative grid items-center gap-12 pt-16 pb-12 lg:grid-cols-[minmax(0,1fr)_560px] lg:pt-24 lg:pb-20">
       <div className="flex flex-col items-start gap-6">
@@ -62,7 +68,7 @@ export function HeroSection() {
         </dl>
       </div>
       <div className="relative mx-auto aspect-square w-full max-w-[560px]">
-        <HeroHeart className="size-full" />
+        <HeroHeart bpm={bpm} className="size-full" />
         <DeviceChip
           name="ESP32-01"
           className="glass-strong absolute top-4 right-0 shadow-lg"
@@ -70,13 +76,10 @@ export function HeroSection() {
         <VitalsTile
           glass
           label="Heart rate"
-          value={72}
+          value={bpm}
           unit="BPM"
           className="absolute bottom-6 left-0 w-[240px] max-sm:hidden"
         />
-        <p className="absolute right-0 bottom-0 left-[30%] hidden text-xs leading-4 font-medium tracking-[0.2px] text-[var(--color-text-subtle)] lg:block">
-          Placeholder: export the 3D heart from Spline and place it here
-        </p>
       </div>
     </section>
   );
