@@ -10,9 +10,15 @@ was trained on.
 """
 from __future__ import annotations
 
-from typing import Callable
+import asyncio
+import json
+import time
+from functools import lru_cache
+from typing import AsyncIterator, Callable
 
 import numpy as np
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 from scipy.signal import resample_poly
 
 from qalb_ml.config import DS2, FS, PACED_RECORDS
@@ -218,3 +224,84 @@ class ReplaySession:
             class_counts=rhythm.get("class_counts"), model=result.get("model"),
             warnings=result.get("warnings", [])))
         return events
+
+
+# -- HTTP layer ---------------------------------------------------------------
+router = APIRouter(prefix="/live", tags=["live"])
+
+
+@lru_cache(maxsize=4)
+def load_replay_record(name: str):
+    """Signal, rate, annotated peaks and labels of one allowed record (cached)."""
+    from qalb_ml.data import load_record
+    return load_record(check_record(name))
+
+
+def model_ready() -> bool:
+    import predict
+    return predict.MODEL_PATH.exists()
+
+
+def encode_event(event: dict) -> str:
+    """One Server-Sent Events message; the type lives inside the JSON."""
+    return f"data: {json.dumps(event, separators=(',', ':'))}
+
+"
+
+
+async def _no_wait(_seconds: float) -> None:
+    return None
+
+
+async def event_stream(session: ReplaySession, ticks: int = 0, sleep=None) -> AsyncIterator[str]:
+    """Drive a session at its real-time pace; ``ticks`` > 0 stops after that many steps."""
+    sleep = sleep or asyncio.sleep
+    deadline = time.monotonic()
+    done = 0
+    while ticks <= 0 or done < ticks:
+        for event in await asyncio.to_thread(session.tick):
+            yield encode_event(event)
+        done += 1
+        deadline += TICK_S
+        await sleep(max(0.0, deadline - time.monotonic()))
+
+
+def parse_speed(value: float) -> int:
+    if value not in SPEEDS:
+        raise HTTPException(status_code=422, detail=f"speed must be one of {', '.join(map(str, SPEEDS))}")
+    return int(value)
+
+
+@router.get("/records")
+def list_records() -> dict:
+    """The demo records a viewer may replay."""
+    return {"records": [{"record": name, "label": label, "fs": FS}
+                        for name, label in DEMO_RECORDS.items()],
+            "speeds": list(SPEEDS), "wire_fs": WIRE_FS}
+
+
+@router.get("/{record}")
+async def stream_record(record: str, speed: float = 1, offset: float = 0, samples: bool = True,
+                        truth: bool = True, ticks: int = 0) -> StreamingResponse:
+    """Server-Sent Events replay of one record.
+
+    ``speed`` is 1, 2 or 5; ``offset`` is where in the record to start (seconds);
+    ``samples=false`` leaves out the signal; ``truth=false`` leaves out the
+    annotated labels; ``ticks`` stops the stream after that many 250 ms steps.
+    """
+    if record not in DEMO_RECORDS:
+        raise HTTPException(status_code=404, detail=f"Unknown record '{record}'.")
+    step = parse_speed(speed)
+    if offset < 0:
+        raise HTTPException(status_code=422, detail="offset must not be negative")
+    if not model_ready():
+        raise HTTPException(status_code=503, detail="Model not available on the server.")
+    try:
+        signal, fs, peaks, labels = await asyncio.to_thread(load_replay_record, record)
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Record {record} could not be loaded: {exc}")
+    session = ReplaySession(record, signal, fs, peaks, labels, speed=step, offset_s=offset,
+                            samples=samples, truth=truth)
+    return StreamingResponse(
+        event_stream(session, ticks), media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"})
