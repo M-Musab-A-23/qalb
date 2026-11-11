@@ -6,7 +6,14 @@ import { Button } from "@/components/ui/Button";
 import { FilterTabs, type FilterOption } from "@/components/ui/FilterTabs";
 import { VitalsTile } from "@/components/ui/VitalsTile";
 import { downloadText, toCsv } from "@/lib/csv";
-import { getAlertStats, getAlerts } from "@/lib/data";
+import {
+  acknowledgeAllLiveAlerts,
+  acknowledgeLiveAlert,
+  getAlertStats,
+  getAlerts,
+  SOURCE_LABELS,
+} from "@/lib/data";
+import { useLiveAlerts } from "@/lib/hooks/useAlerts";
 import { AlertsTable } from "./AlertsTable";
 
 type Filter = "all" | "open" | "acknowledged";
@@ -18,12 +25,19 @@ const options: FilterOption<Filter>[] = [
 ];
 
 export function AlertsView() {
-  const [alerts, setAlerts] = useState(getAlerts);
+  const [seeded, setSeeded] = useState(getAlerts);
+  const live = useLiveAlerts();
   const [filter, setFilter] = useState<Filter>("all");
+  // Alerts raised by the live feed this session come first.
+  const alerts = [...live, ...seeded];
   const stats = getAlertStats(alerts);
 
   function acknowledge(id: string) {
-    setAlerts((list) =>
+    if (live.some((alert) => alert.id === id)) {
+      acknowledgeLiveAlert(id);
+      return;
+    }
+    setSeeded((list) =>
       list.map((alert) =>
         alert.id === id ? { ...alert, acknowledged: true } : alert,
       ),
@@ -31,18 +45,20 @@ export function AlertsView() {
   }
 
   function acknowledgeAll() {
-    setAlerts((list) => list.map((alert) => ({ ...alert, acknowledged: true })));
+    acknowledgeAllLiveAlerts();
+    setSeeded((list) => list.map((alert) => ({ ...alert, acknowledged: true })));
   }
 
   function exportCsv() {
     const csv = toCsv(
-      ["Time", "Severity", "Patient", "Device", "Details", "Acknowledged"],
+      ["Time", "Severity", "Patient", "Device", "Details", "Source", "Acknowledged"],
       alerts.map((alert) => [
         alert.time,
         alert.severity,
         alert.patientId,
         alert.deviceId,
         alert.detail,
+        alert.source ? SOURCE_LABELS[alert.source] : "Seeded",
         alert.acknowledged ? "yes" : "no",
       ]),
     );
