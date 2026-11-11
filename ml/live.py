@@ -248,6 +248,18 @@ def model_ready() -> bool:
     return predict.MODEL_PATH.exists()
 
 
+_WARM = False
+
+
+def warm_model(signal: np.ndarray, fs: int) -> None:
+    """Run the model once before the first stream so the load time (a few seconds
+    for the CNN) is not spent in the middle of a replay."""
+    global _WARM
+    if not _WARM:
+        default_analyse(np.asarray(signal[:int(WINDOW_S * fs)], dtype=float), fs)
+        _WARM = True
+
+
 def encode_event(event: dict) -> str:
     """One Server-Sent Events message; the type lives inside the JSON."""
     return f"data: {json.dumps(event, separators=(',', ':'))}\n\n"
@@ -304,6 +316,10 @@ async def stream_record(record: str, speed: float = 1, offset: float = 0, sample
         signal, fs, peaks, labels = await asyncio.to_thread(load_replay_record, record)
     except Exception as exc:
         raise HTTPException(status_code=503, detail=f"Record {record} could not be loaded: {exc}")
+    try:
+        await asyncio.to_thread(warm_model, signal, fs)
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"The model could not be loaded: {exc}")
     session = ReplaySession(record, signal, fs, peaks, labels, speed=step, offset_s=offset,
                             samples=samples, truth=truth)
     return StreamingResponse(
